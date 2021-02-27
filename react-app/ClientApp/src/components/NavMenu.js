@@ -34,10 +34,10 @@ export class NavMenu extends Component {
                   <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/counter">Counter</NavLink>
+                    <a href="https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=b9b81baa6aad4cf29cd450744ee1379c&redirect_uri=https://localhost:44331/allegro" className="text-dark nav-link">Zaloguj do Allegro</a>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/fetch-data">Fetch data</NavLink>
+                  <NavLink tag={Link} className="text-dark" to="/fetch-data">Zamówienia</NavLink>
                 </NavItem>
               </ul>
             </Collapse>

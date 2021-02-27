@@ -17,19 +17,19 @@ export class FetchData extends Component {
       <table className='table table-striped' aria-labelledby="tabelLabel">
         <thead>
           <tr>
-            <th>Id</th>
-            <th>Service name</th>
-            <th>Content</th>
-            <th>Created</th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Code</th>
+            <th>Date</th>
           </tr>
         </thead>
         <tbody>
           {orders.map(order =>
             <tr key={order.date}>
-              <td>{order.id}</td>
-              <td>{order.serviceName}</td>
-              <td>{order.content}</td>
-              <td>{order.created}</td>
+              <td>{order.type}</td>
+              <td>{order.name}</td>
+              <td>{order.code}</td>
+              <td>{order.date}</td>
             </tr>
           )}
         </tbody>
@@ -52,7 +52,7 @@ export class FetchData extends Component {
   }
 
   async populateWeatherData() {
-    const response = await fetch('weatherforecast');
+    const response = await fetch('orders');
     const data = await response.json();
       this.setState({ orders: data, loading: false });
   }

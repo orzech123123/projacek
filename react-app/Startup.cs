@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using react_app.Allegro;
+using react_app.Apaczka;
 
 namespace react_app
 {
@@ -28,6 +30,9 @@ namespace react_app
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            services.Configure<ApaczkaSettings>(Configuration.GetSection("apaczka"));
+            services.Configure<AllegroSettings>(Configuration.GetSection("allegro"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
