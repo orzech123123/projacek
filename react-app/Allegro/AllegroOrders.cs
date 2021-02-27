@@ -1,8 +1,14 @@
 using System;
 using System.Collections.Generic;
 
-namespace react_app.Apaczka
+namespace react_app.Allegro
 {
+    public class AllegroAccessTokenResponse
+    {
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
+    }
+
     public class AllegroCheckoutFormsResponse
     {
         public List<AllegroCheckoutForm> CheckoutForms { get; set; }

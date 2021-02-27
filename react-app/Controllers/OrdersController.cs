@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using react_app.Allegro;
 using react_app.Apaczka;
 using RestSharp;
 
@@ -37,18 +38,17 @@ namespace react_app.Controllers
         [HttpGet]
         public IEnumerable<Order> GetAll()
         {
-            var apaczkas = GetApaczkaOrders();
+            var apaczkaOrders = GetApaczkaOrders();
+            var allegroOrders = GetAllegroOrders().ToList();
 
-            var allegroOffers = GetAllegro().ToList();
-
-            return apaczkas.Response.Orders.Select(o => new Order
+            return apaczkaOrders.Response.Orders.Select(o => new Order
             {
                 Type = "apaczka",
                 Code = o.Comment,
                 Name = o.Content,
                 Date = o.Created
             })
-            .Union(allegroOffers.Select(o => new Order
+            .Union(allegroOrders.Select(o => new Order
             {
                 Type = "allegro",
                 Name = o.Name,
@@ -87,7 +87,7 @@ namespace react_app.Controllers
             return client.Execute<ApaczkaOrdersResponse>(request).Data;
         }
 
-        private IEnumerable<AllegroSaleOffer> GetAllegro()
+        private IEnumerable<AllegroSaleOffer> GetAllegroOrders()
         {
             var token = System.IO.File.ReadAllText(Path.Combine(env.ContentRootPath, "token"));
 
@@ -95,7 +95,8 @@ namespace react_app.Controllers
             var request2 = new RestRequest($"/order/checkout-forms", Method.GET);
             request2.AddHeader("Authorization", $"Bearer {token}");
             request2.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
-            request2.AddParameter("limit", "10");
+            request2.AddParameter("limit", "25");
+            //request2.AddParameter("fulfillment.status", "SENT");
 
             var response = client2.Execute<AllegroCheckoutFormsResponse>(request2).Data;
 
