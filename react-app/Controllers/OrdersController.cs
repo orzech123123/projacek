@@ -35,7 +35,7 @@ namespace react_app.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Order> Get()
+        public IEnumerable<Order> GetAll()
         {
             var apaczkas = GetApaczkaOrders();
 
@@ -53,8 +53,9 @@ namespace react_app.Controllers
                 Type = "allegro",
                 Name = o.Name,
                 Code = o.External?.Id,
-                Date = new DateTime(2001, 9, 11)
-            }));
+                Date = o.BoughtAt
+            }))
+            .OrderByDescending(o => o.Date);
         }
 
         private ApaczkaOrdersResponse GetApaczkaOrders()
@@ -98,12 +99,19 @@ namespace react_app.Controllers
 
             var response = client2.Execute<AllegroCheckoutFormsResponse>(request2).Data;
 
-            foreach(var offer in response.CheckoutForms.SelectMany(f => f.LineItems.Select(li => li.Offer)))
+            var offers = response.CheckoutForms.SelectMany(f => f.LineItems.Select(li => new
+            {
+                li.BoughtAt,
+                li.Offer.Id,
+            }));
+
+            foreach (var offer in offers)
             {
                 var request3 = new RestRequest($"sale/offers/{offer.Id}", Method.GET);
                 request3.AddHeader("Authorization", $"Bearer {token}");
                 request3.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
                 var saleOffer = client2.Execute<AllegroSaleOffer>(request3).Data;
+                saleOffer.BoughtAt = offer.BoughtAt;
                 yield return saleOffer;
             }
         }

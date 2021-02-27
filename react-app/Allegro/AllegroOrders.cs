@@ -17,6 +17,7 @@ namespace react_app.Apaczka
     public class AllegroCheckoutFormLineItem
     {
         public string Id { get; set; }
+        public DateTime BoughtAt { get; set; }
         public AllegroCheckoutFormOffer Offer { get; set; }
 
     }
@@ -33,6 +34,7 @@ namespace react_app.Apaczka
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        public DateTime BoughtAt { get; set; }
         public AllegroSaleOfferExternal External { get; set; }
 
     }
