@@ -6,11 +6,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using react_app.Allegro;
 using react_app.Apaczka;
+using react_app.Lomag;
 using RestSharp;
 
 namespace react_app.Controllers
@@ -24,15 +24,18 @@ namespace react_app.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<OrdersController> _logger;
         private readonly IOptions<ApaczkaSettings> apaczkaSettings;
         private readonly IWebHostEnvironment env;
+        private readonly LomagDbContext lomagDbContext;
 
-        public OrdersController(ILogger<OrdersController> logger, IOptions<ApaczkaSettings> apaczkaSettings, IWebHostEnvironment env)
+        public OrdersController(
+            IOptions<ApaczkaSettings> apaczkaSettings,
+            IWebHostEnvironment env,
+            LomagDbContext lomagDbContext)
         {
-            _logger = logger;
             this.apaczkaSettings = apaczkaSettings;
             this.env = env;
+            this.lomagDbContext = lomagDbContext;
         }
 
         [HttpGet]
@@ -40,6 +43,8 @@ namespace react_app.Controllers
         {
             var apaczkaOrders = GetApaczkaOrders();
             var allegroOrders = GetAllegroOrders().ToList();
+
+            var towars = lomagDbContext.Towars.Count();
 
             return apaczkaOrders.Response.Orders.Select(o => new Order
             {

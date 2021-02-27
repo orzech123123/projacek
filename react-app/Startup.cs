@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using react_app.Allegro;
 using react_app.Apaczka;
+using react_app.Lomag;
 
 namespace react_app
 {
@@ -33,6 +33,9 @@ namespace react_app
 
             services.Configure<ApaczkaSettings>(Configuration.GetSection("apaczka"));
             services.Configure<AllegroSettings>(Configuration.GetSection("allegro"));
+            services.Configure<LomagSettings>(Configuration.GetSection("lomag"));
+
+            services.AddDbContext<LomagDbContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
