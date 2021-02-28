@@ -24,6 +24,7 @@ namespace react_app.Allegro
     {
         public string Id { get; set; }
         public DateTime BoughtAt { get; set; }
+        public int Quantity { get; set; }
         public AllegroCheckoutFormOffer Offer { get; set; }
 
     }
@@ -35,17 +36,17 @@ namespace react_app.Allegro
 
     }
 
-
     public class AllegroSaleOffer
     {
-        public string Id { get; set; }
         public string Name { get; set; }
         public AllegroSaleOfferExternal External { get; set; }
 
         public DateTime BoughtAt { get; set; }
         public string OrderId { get; set; }
+        public int Quantity { get; set; }
 
     }
+
     public class AllegroSaleOfferExternal
     {
         public string Id { get; set; }

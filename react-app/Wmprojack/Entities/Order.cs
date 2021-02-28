@@ -12,8 +12,6 @@ namespace react_app.Wmprojack.Entities
         [Required]
         public string ProviderOrderId { get; set; }
         [Required]
-        public string ProviderProductId { get; set; }
-        [Required]
         public OrderProvider ProviderType { get; set; }
         [Required]
         public string Name { get; set; }
@@ -21,9 +19,11 @@ namespace react_app.Wmprojack.Entities
         public string Code { get; set; }
 
         [NotMapped]
+        public int Quantity { get; set; }
+        [NotMapped]
         public bool IsValid => !string.IsNullOrEmpty(ProviderOrderId) &&
-            !string.IsNullOrEmpty(ProviderProductId) &&
             !string.IsNullOrEmpty(Name) &&
+            Quantity > 0 &&
             !string.IsNullOrEmpty(Code);
     }
 

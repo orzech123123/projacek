@@ -16,10 +16,6 @@ namespace react_app.Wmprojack
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Order>()
-                .HasIndex(u => new { u.ProviderProductId, u.ProviderType, u.Code })
-                .IsUnique();
-
-            modelBuilder.Entity<Order>()
                 .Property(p => p.Id)
                 .ValueGeneratedOnAdd();
 

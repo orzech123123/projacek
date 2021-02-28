@@ -26,8 +26,8 @@ export class FetchData extends Component {
                       </tr>
                   </thead>
                   <tbody>
-                      {syncs.map(sync =>
-                          <tr key={sync.providerProductId}>
+                      {syncs.map((sync, index) =>
+                          <tr key={index}>
                               <td>{sync.providerType}</td>
                               <td>{sync.name}</td>
                               <td>{sync.code}</td>
@@ -53,8 +53,8 @@ export class FetchData extends Component {
                       </tr>
                   </thead>
                   <tbody>
-                      {orders.map(order =>
-                          <tr key={order.providerProductId}>
+                      {orders.map((order, index) =>
+                          <tr key={index}>
                               <td>{order.providerType}</td>
                               <td>{order.providerOrderId}</td>
                               <td>{order.name}</td>

@@ -53,20 +53,20 @@ namespace react_app.Controllers
             /*recentApiOrders.Add(new Order
             {
                 Date = DateTime.Now,
-                Name = "paczka z 2 produktami",
+                Name = "dwie sztuki tego samego",
                 ProviderOrderId = "05g82981-22gh-11eb-a3df-37uf7454fbg1-allegrokodsztuczny",
-                ProviderProductId = Guid.NewGuid().ToString(),
                 ProviderType = OrderProvider.Allegro,
-                Code = "ewuihfsd 00000151 sdfjksdfsdfjh 00000292"
+                Code = "00000292",
+                Quantity = 2
             });
             recentApiOrders.Add(new Order
             {
                 Date = DateTime.Now,
-                Name = "zamówienie z 3 produktami",
+                Name = "zamówienie z 4 w sumie sztukami",
                 ProviderOrderId = "96666666-apaczkowykodsztuczny",
-                ProviderProductId = Guid.NewGuid().ToString(),
                 ProviderType = OrderProvider.Apaczka,
-                Code = "00000006 00000053 sdfjksdfsdfjh 0000sdfsdfsfd0292 00000072"
+                Code = "00000006 00000053 xxxxxxx 00000072 00000053",
+                Quantity = 1
             });*/
 
 
@@ -86,17 +86,19 @@ namespace react_app.Controllers
                 var detectedCodes = apiOrder.Code.Split(new[] { ' ' })
                     .Where(strPart => lomagKodyKreskowe.Contains(strPart));
 
-                foreach(var code in detectedCodes)
+                for(var i = 0; i < apiOrder.Quantity; i++)
                 {
-                    ordersToSync.Add(new Order
+                    foreach (var code in detectedCodes)
                     {
-                        Code = code,
-                        Date = apiOrder.Date,
-                        Name = $"{lomagTowars.Single(t => t.KodKreskowy == code).Nazwa} - {apiOrder.Name}",
-                        ProviderOrderId = apiOrder.ProviderOrderId,
-                        ProviderProductId = $"{apiOrder.ProviderProductId}-{code}",
-                        ProviderType = apiOrder.ProviderType
-                    });
+                        ordersToSync.Add(new Order
+                        {
+                            Code = code,
+                            Date = apiOrder.Date,
+                            Name = $"{lomagTowars.Single(t => t.KodKreskowy == code).Nazwa} - {apiOrder.Name}",
+                            ProviderOrderId = apiOrder.ProviderOrderId,
+                            ProviderType = apiOrder.ProviderType
+                        });
+                    }
                 }
             }
 
@@ -122,20 +124,20 @@ namespace react_app.Controllers
                 .Select(o => new Order
                 {
                     ProviderOrderId = o.Id,
-                    ProviderProductId = Guid.NewGuid().ToString(), //nie ma niestety identyfikatora produktu/podzamówienia jak w allegro
                     ProviderType = OrderProvider.Apaczka,
                     Code = o.Comment,
                     Name = o.Content,
-                    Date = o.Created
+                    Date = o.Created,
+                    Quantity = 1
                 })
                 .Union(allegroOrders.Select(o => new Order
                 {
                     ProviderOrderId = o.OrderId,
-                    ProviderProductId = o.Id,
                     ProviderType = OrderProvider.Allegro,
                     Name = o.Name,
                     Code = o.External?.Id,
-                    Date = o.BoughtAt
+                    Date = o.BoughtAt,
+                    Quantity = o.Quantity
                 }))
                 .OrderByDescending(o => o.Date)
                 .ToList();
@@ -169,7 +171,6 @@ namespace react_app.Controllers
             request.AddParameter("expires", expiresDate);
             request.AddParameter("signature", signature);
 
-            var xxxx = client.Execute<ApaczkaOrdersResponse>(request).Content;
             return client.Execute<ApaczkaOrdersResponse>(request).Data;
         }
 
@@ -189,9 +190,9 @@ namespace react_app.Controllers
             var offers = response.CheckoutForms.SelectMany(f => f.LineItems.Select(li => new
             {
                 ProviderOrderId = f.Id,
-                ProviderProductId = li.Id,
                 li.BoughtAt,
                 OfferId = li.Offer.Id,
+                li.Quantity
             }));
 
             foreach (var offer in offers)
@@ -202,8 +203,8 @@ namespace react_app.Controllers
                 var saleOffer = client2.Execute<AllegroSaleOffer>(request3).Data;
 
                 saleOffer.BoughtAt = offer.BoughtAt;
-                saleOffer.Id = offer.ProviderProductId;
                 saleOffer.OrderId = offer.ProviderOrderId;
+                saleOffer.Quantity = offer.Quantity;
 
                 yield return saleOffer;
             }
