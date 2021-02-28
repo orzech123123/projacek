@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +9,7 @@ using Newtonsoft.Json.Converters;
 using react_app.Allegro;
 using react_app.Apaczka;
 using react_app.Lomag;
+using react_app.Wmprojack;
 
 namespace react_app
 {
@@ -20,7 +22,6 @@ namespace react_app
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
 
@@ -37,13 +38,24 @@ namespace react_app
 
             services.Configure<ApaczkaSettings>(Configuration.GetSection("apaczka"));
             services.Configure<AllegroSettings>(Configuration.GetSection("allegro"));
-            services.Configure<LomagSettings>(Configuration.GetSection("lomag"));
 
-            services.AddDbContext<LomagDbContext>();
+            var lomagSettings = new LomagSettings();
+            Configuration.GetSection("lomag").Bind(lomagSettings);
+            services.AddDbContext<LomagDbContext>(
+                o => o.UseSqlServer(lomagSettings.ConnectionString,
+                options => options.EnableRetryOnFailure())
+            );
+
+            services.AddDbContext<WmprojackDbContext>(
+                o => o. UseSqlServer(Configuration.GetConnectionString("wmprojack"),
+                options => options.EnableRetryOnFailure())
+            );
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+
+        public void Configure(IApplicationBuilder app,
+            IWebHostEnvironment env,
+            WmprojackDbContext wmprojackDbContext)
         {
             if (env.IsDevelopment())
             {
@@ -78,6 +90,8 @@ namespace react_app
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
+
+            wmprojackDbContext.Database.EnsureCreated();
         }
     }
 }

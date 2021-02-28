@@ -9,5 +9,6 @@ namespace react_app.Lomag.Entities
         [Key]
         public int IdTowaru { get; set; }
         public string Nazwa { get; set; }
+        public string KodKreskowy { get; set; }
     }
 }

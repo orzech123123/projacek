@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using react_app.Allegro;
 using react_app.Apaczka;
 using react_app.Lomag;
+using react_app.Wmprojack.Entities;
 using RestSharp;
 
 namespace react_app.Controllers
@@ -19,11 +20,6 @@ namespace react_app.Controllers
     [Route("[controller]")]
     public class OrdersController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private readonly IOptions<ApaczkaSettings> apaczkaSettings;
         private readonly IWebHostEnvironment env;
         private readonly LomagDbContext lomagDbContext;
@@ -39,12 +35,19 @@ namespace react_app.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Order> GetAll()
+        public IEnumerable<Order> Sync()
+        {
+            var towars = lomagDbContext.Towars.ToList();
+
+            var recentApiOrders = GetRecentOrdersFromProviders();
+
+            return recentApiOrders;
+        }
+
+        private IEnumerable<Order> GetRecentOrdersFromProviders()
         {
             var apaczkaOrders = GetApaczkaOrders();
             var allegroOrders = GetAllegroOrders().ToList();
-
-            var towars = lomagDbContext.Towars.Count();
 
             var orders = apaczkaOrders.Response.Orders
                 .Select(o => new Order
@@ -65,7 +68,6 @@ namespace react_app.Controllers
                 }))
                 .OrderByDescending(o => o.Date)
                 .ToList();
-
 
             return orders;
         }
