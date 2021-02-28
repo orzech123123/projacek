@@ -17,8 +17,8 @@ export class FetchData extends Component {
       <table className='table table-striped' aria-labelledby="tabelLabel">
         <thead>
           <tr>
-            <th>Type</th>
-            <th>Id</th>
+            <th>Provider</th>
+            <th>Provider Id</th>
             <th>Name</th>
             <th>Code</th>
             <th>Date</th>
@@ -27,8 +27,8 @@ export class FetchData extends Component {
         <tbody>
           {orders.map(order =>
             <tr key={order.date}>
-              <td>{order.type}</td>
-              <td>{order.id}</td>
+              <td>{order.providerType}</td>
+              <td>{order.providerId}</td>
               <td>{order.name}</td>
               <td>{order.code}</td>
               <td>{order.date}</td>

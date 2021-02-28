@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -11,6 +12,7 @@ using Newtonsoft.Json;
 using react_app.Allegro;
 using react_app.Apaczka;
 using react_app.Lomag;
+using react_app.Wmprojack;
 using react_app.Wmprojack.Entities;
 using RestSharp;
 
@@ -23,28 +25,87 @@ namespace react_app.Controllers
         private readonly IOptions<ApaczkaSettings> apaczkaSettings;
         private readonly IWebHostEnvironment env;
         private readonly LomagDbContext lomagDbContext;
+        private readonly WmprojackDbContext wmprojackDbContext;
 
         public OrdersController(
             IOptions<ApaczkaSettings> apaczkaSettings,
             IWebHostEnvironment env,
-            LomagDbContext lomagDbContext)
+            LomagDbContext lomagDbContext,
+            WmprojackDbContext wmprojackDbContext)
         {
             this.apaczkaSettings = apaczkaSettings;
             this.env = env;
             this.lomagDbContext = lomagDbContext;
+            this.wmprojackDbContext = wmprojackDbContext;
         }
 
         [HttpGet]
         public IEnumerable<Order> Sync()
         {
-            var towars = lomagDbContext.Towars.ToList();
-
+            var lomagTowars = lomagDbContext.Towars.ToList();
+            var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
+            var projackDbOrders = wmprojackDbContext.Orders.ToList();
             var recentApiOrders = GetRecentOrdersFromProviders();
+
+
+
+            //TODO remove / tests
+            recentApiOrders.Add(new Order
+            {
+                Date = DateTime.Now,
+                Name = "szakalaka",
+                ProviderId = "bz93485734985",
+                ProviderType = OrderProvider.Allegro,
+                Code = "ewuihfsd 00000151 sdfjksdfsdfjh 00000292"
+            });
+            recentApiOrders.Add(new Order
+            {
+                Date = DateTime.Now,
+                Name = "apczkowa zamowieniaaa",
+                ProviderId = "unsze44565675",
+                ProviderType = OrderProvider.Apaczka,
+                Code = "00000006 00000053 sdfjksdfsdfjh 0000sdfsdfsfd0292 00000072"
+            });
+
+
+
+            var ordersToSync = new List<Order>();
+            foreach(var apiOrder in recentApiOrders.Where(o => o.IsValid))
+            {
+                var isDuplicate = projackDbOrders
+                    .Union(ordersToSync)
+                    .Any(o => o.ProviderId == apiOrder.ProviderId && o.ProviderType == apiOrder.ProviderType);
+
+                if (isDuplicate)
+                {
+                    continue;
+                }
+
+                var detectedCodes = apiOrder.Code.Split(new[] { ' ' })
+                    .Where(strPart => lomagKodyKreskowe.Contains(strPart));
+
+                foreach(var code in detectedCodes)
+                {
+                    ordersToSync.Add(new Order
+                    {
+                        Code = code,
+                        Date = apiOrder.Date,
+                        Name = $"{lomagTowars.Single(t => t.KodKreskowy == code).Nazwa} - {apiOrder.Name}",
+                        ProviderId = apiOrder.ProviderId,
+                        ProviderType = apiOrder.ProviderType
+                    });
+                }
+            }
+
+            //TODO sync Orders with Lomag
+
+            wmprojackDbContext.AddRange(ordersToSync);
+            wmprojackDbContext.SaveChanges();
 
             return recentApiOrders;
         }
 
-        private IEnumerable<Order> GetRecentOrdersFromProviders()
+        private IList<Order> GetRecentOrdersFromProviders()
         {
             var apaczkaOrders = GetApaczkaOrders();
             var allegroOrders = GetAllegroOrders().ToList();
@@ -52,16 +113,16 @@ namespace react_app.Controllers
             var orders = apaczkaOrders.Response.Orders
                 .Select(o => new Order
                 {
-                    Id = o.Id,
-                    Type = OrderProvider.Apaczka,
+                    ProviderId = o.Id,
+                    ProviderType = OrderProvider.Apaczka,
                     Code = o.Comment,
                     Name = o.Content,
                     Date = o.Created
                 })
                 .Union(allegroOrders.Select(o => new Order
                 {
-                    Id = o.Id,
-                    Type = OrderProvider.Allegro,
+                    ProviderId = o.Id,
+                    ProviderType = OrderProvider.Allegro,
                     Name = o.Name,
                     Code = o.External?.Id,
                     Date = o.BoughtAt
