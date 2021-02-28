@@ -18,6 +18,7 @@ export class FetchData extends Component {
         <thead>
           <tr>
             <th>Type</th>
+            <th>Id</th>
             <th>Name</th>
             <th>Code</th>
             <th>Date</th>
@@ -27,6 +28,7 @@ export class FetchData extends Component {
           {orders.map(order =>
             <tr key={order.date}>
               <td>{order.type}</td>
+              <td>{order.id}</td>
               <td>{order.name}</td>
               <td>{order.code}</td>
               <td>{order.date}</td>

@@ -46,21 +46,28 @@ namespace react_app.Controllers
 
             var towars = lomagDbContext.Towars.Count();
 
-            return apaczkaOrders.Response.Orders.Select(o => new Order
-            {
-                Type = "apaczka",
-                Code = o.Comment,
-                Name = o.Content,
-                Date = o.Created
-            })
-            .Union(allegroOrders.Select(o => new Order
-            {
-                Type = "allegro",
-                Name = o.Name,
-                Code = o.External?.Id,
-                Date = o.BoughtAt
-            }))
-            .OrderByDescending(o => o.Date);
+            var orders = apaczkaOrders.Response.Orders
+                .Select(o => new Order
+                {
+                    Id = o.Id,
+                    Type = OrderProvider.Apaczka,
+                    Code = o.Comment,
+                    Name = o.Content,
+                    Date = o.Created
+                })
+                .Union(allegroOrders.Select(o => new Order
+                {
+                    Id = o.Id,
+                    Type = OrderProvider.Allegro,
+                    Name = o.Name,
+                    Code = o.External?.Id,
+                    Date = o.BoughtAt
+                }))
+                .OrderByDescending(o => o.Date)
+                .ToList();
+
+
+            return orders;
         }
 
         private ApaczkaOrdersResponse GetApaczkaOrders()
@@ -107,17 +114,21 @@ namespace react_app.Controllers
 
             var offers = response.CheckoutForms.SelectMany(f => f.LineItems.Select(li => new
             {
+                li.Id,
                 li.BoughtAt,
-                li.Offer.Id,
+                OfferId = li.Offer.Id,
             }));
 
             foreach (var offer in offers)
             {
-                var request3 = new RestRequest($"sale/offers/{offer.Id}", Method.GET);
+                var request3 = new RestRequest($"sale/offers/{offer.OfferId}", Method.GET);
                 request3.AddHeader("Authorization", $"Bearer {token}");
                 request3.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
                 var saleOffer = client2.Execute<AllegroSaleOffer>(request3).Data;
+
                 saleOffer.BoughtAt = offer.BoughtAt;
+                saleOffer.Id = offer.Id;
+
                 yield return saleOffer;
             }
         }
