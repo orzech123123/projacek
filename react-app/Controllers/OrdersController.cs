@@ -40,7 +40,7 @@ namespace react_app.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Order> Sync()
+        public object Sync()
         {
             var lomagTowars = lomagDbContext.Towars.ToList();
             var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
@@ -50,22 +50,24 @@ namespace react_app.Controllers
 
 
             //TODO remove / tests
-            recentApiOrders.Add(new Order
+            /*recentApiOrders.Add(new Order
             {
                 Date = DateTime.Now,
-                Name = "szakalaka",
-                ProviderId = "bz93485734985",
+                Name = "paczka z 2 produktami",
+                ProviderOrderId = "05g82981-22gh-11eb-a3df-37uf7454fbg1-allegrokodsztuczny",
+                ProviderProductId = Guid.NewGuid().ToString(),
                 ProviderType = OrderProvider.Allegro,
                 Code = "ewuihfsd 00000151 sdfjksdfsdfjh 00000292"
             });
             recentApiOrders.Add(new Order
             {
                 Date = DateTime.Now,
-                Name = "apczkowa zamowieniaaa",
-                ProviderId = "unsze44565675",
+                Name = "zamówienie z 3 produktami",
+                ProviderOrderId = "96666666-apaczkowykodsztuczny",
+                ProviderProductId = Guid.NewGuid().ToString(),
                 ProviderType = OrderProvider.Apaczka,
                 Code = "00000006 00000053 sdfjksdfsdfjh 0000sdfsdfsfd0292 00000072"
-            });
+            });*/
 
 
 
@@ -74,7 +76,7 @@ namespace react_app.Controllers
             {
                 var isDuplicate = projackDbOrders
                     .Union(ordersToSync)
-                    .Any(o => o.ProviderId == apiOrder.ProviderId && o.ProviderType == apiOrder.ProviderType);
+                    .Any(o => o.ProviderOrderId == apiOrder.ProviderOrderId && o.ProviderType == apiOrder.ProviderType);
 
                 if (isDuplicate)
                 {
@@ -91,7 +93,8 @@ namespace react_app.Controllers
                         Code = code,
                         Date = apiOrder.Date,
                         Name = $"{lomagTowars.Single(t => t.KodKreskowy == code).Nazwa} - {apiOrder.Name}",
-                        ProviderId = apiOrder.ProviderId,
+                        ProviderOrderId = apiOrder.ProviderOrderId,
+                        ProviderProductId = $"{apiOrder.ProviderProductId}-{code}",
                         ProviderType = apiOrder.ProviderType
                     });
                 }
@@ -102,7 +105,12 @@ namespace react_app.Controllers
             wmprojackDbContext.AddRange(ordersToSync);
             wmprojackDbContext.SaveChanges();
 
-            return recentApiOrders;
+            var allSyncs = wmprojackDbContext.Orders.OrderByDescending(o => o.Date).ThenBy(o => o.ProviderOrderId).ToList();
+            return new
+            {
+                orders = recentApiOrders,
+                syncs = allSyncs
+            };
         }
 
         private IList<Order> GetRecentOrdersFromProviders()
@@ -113,7 +121,8 @@ namespace react_app.Controllers
             var orders = apaczkaOrders.Response.Orders
                 .Select(o => new Order
                 {
-                    ProviderId = o.Id,
+                    ProviderOrderId = o.Id,
+                    ProviderProductId = Guid.NewGuid().ToString(), //nie ma niestety identyfikatora produktu/podzamówienia jak w allegro
                     ProviderType = OrderProvider.Apaczka,
                     Code = o.Comment,
                     Name = o.Content,
@@ -121,7 +130,8 @@ namespace react_app.Controllers
                 })
                 .Union(allegroOrders.Select(o => new Order
                 {
-                    ProviderId = o.Id,
+                    ProviderOrderId = o.OrderId,
+                    ProviderProductId = o.Id,
                     ProviderType = OrderProvider.Allegro,
                     Name = o.Name,
                     Code = o.External?.Id,
@@ -159,6 +169,7 @@ namespace react_app.Controllers
             request.AddParameter("expires", expiresDate);
             request.AddParameter("signature", signature);
 
+            var xxxx = client.Execute<ApaczkaOrdersResponse>(request).Content;
             return client.Execute<ApaczkaOrdersResponse>(request).Data;
         }
 
@@ -177,7 +188,8 @@ namespace react_app.Controllers
 
             var offers = response.CheckoutForms.SelectMany(f => f.LineItems.Select(li => new
             {
-                li.Id,
+                ProviderOrderId = f.Id,
+                ProviderProductId = li.Id,
                 li.BoughtAt,
                 OfferId = li.Offer.Id,
             }));
@@ -190,7 +202,8 @@ namespace react_app.Controllers
                 var saleOffer = client2.Execute<AllegroSaleOffer>(request3).Data;
 
                 saleOffer.BoughtAt = offer.BoughtAt;
-                saleOffer.Id = offer.Id;
+                saleOffer.Id = offer.ProviderProductId;
+                saleOffer.OrderId = offer.ProviderOrderId;
 
                 yield return saleOffer;
             }

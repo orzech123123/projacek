@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using react_app.Wmprojack.Entities;
 
 namespace react_app.Wmprojack
@@ -15,12 +16,18 @@ namespace react_app.Wmprojack
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Order>()
-                .HasIndex(u => new { u.ProviderId, u.ProviderType, u.Code })
+                .HasIndex(u => new { u.ProviderProductId, u.ProviderType, u.Code })
                 .IsUnique();
 
             modelBuilder.Entity<Order>()
                 .Property(p => p.Id)
                 .ValueGeneratedOnAdd();
+
+            var converter = new EnumToStringConverter<OrderProvider>();
+            modelBuilder
+                .Entity<Order>()
+                .Property(e => e.ProviderType)
+                .HasConversion(converter);
         }
     }
 }
