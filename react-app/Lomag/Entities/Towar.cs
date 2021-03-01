@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace react_app.Lomag.Entities
 {
-    [Table("Towar")]
+    [Table(nameof(Towar))]
     public class Towar
     {
         [Key]

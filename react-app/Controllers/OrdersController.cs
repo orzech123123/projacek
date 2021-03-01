@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using react_app.Allegro;
@@ -42,12 +43,9 @@ namespace react_app.Controllers
         [HttpGet]
         public object Sync()
         {
-            var lomagTowars = lomagDbContext.Towars.ToList();
-            var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
             var projackDbOrders = wmprojackDbContext.Orders.ToList();
             var recentApiOrders = GetRecentOrdersFromProviders();
-
-
+            var lomagTowars = lomagDbContext.Towary.ToList();
 
             //TODO remove / tests
             /*recentApiOrders.Add(new Order
@@ -69,10 +67,24 @@ namespace react_app.Controllers
                 Quantity = 1
             });*/
 
+            var ordersToSync = GetOrdersToSync(projackDbOrders, recentApiOrders, lomagTowars);
+            wmprojackDbContext.AddRange(ordersToSync);
+            wmprojackDbContext.SaveChanges();
 
+            AddOrderSyncsToDb(ordersToSync);
 
+            var allSyncs = wmprojackDbContext.Orders.OrderByDescending(o => o.Date).ThenBy(o => o.ProviderOrderId).ToList();
+            return new
+            {
+                orders = recentApiOrders,
+                syncs = allSyncs
+            };
+        }
+
+        private IList<Order> GetOrdersToSync(List<Order> projackDbOrders, IList<Order> recentApiOrders, List<Lomag.Entities.Towar> lomagTowars)
+        {
             var ordersToSync = new List<Order>();
-            foreach(var apiOrder in recentApiOrders.Where(o => o.IsValid))
+            foreach (var apiOrder in recentApiOrders.Where(o => o.IsValid))
             {
                 var isDuplicate = projackDbOrders
                     .Union(ordersToSync)
@@ -83,10 +95,11 @@ namespace react_app.Controllers
                     continue;
                 }
 
+                var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
                 var detectedCodes = apiOrder.Code.Split(new[] { ' ' })
                     .Where(strPart => lomagKodyKreskowe.Contains(strPart));
 
-                for(var i = 0; i < apiOrder.Quantity; i++)
+                for (var i = 0; i < apiOrder.Quantity; i++)
                 {
                     foreach (var code in detectedCodes)
                     {
@@ -102,17 +115,21 @@ namespace react_app.Controllers
                 }
             }
 
-            //TODO sync Orders with Lomag
+            return ordersToSync;
+        }
 
-            wmprojackDbContext.AddRange(ordersToSync);
-            wmprojackDbContext.SaveChanges();
-
-            var allSyncs = wmprojackDbContext.Orders.OrderByDescending(o => o.Date).ThenBy(o => o.ProviderOrderId).ToList();
-            return new
+        private void AddOrderSyncsToDb(IList<Order> syncs)
+        {
+            foreach(var order in syncs)
             {
-                orders = recentApiOrders,
-                syncs = allSyncs
-            };
+                
+            }    
+
+            var yyy = lomagDbContext.ElementyRuchuMagazynowego
+                .Include(e => e.Uzytkownik)
+                .Include(e => e.RuchMagazynowy)
+                .ThenInclude(e => e.RodzajRuchuMagazynowego)
+                .ToList();
         }
 
         private IList<Order> GetRecentOrdersFromProviders()

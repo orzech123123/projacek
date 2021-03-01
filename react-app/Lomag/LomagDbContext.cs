@@ -10,6 +10,10 @@ namespace react_app.Lomag
 
         }
 
-        public DbSet<Towar> Towars { get; set; }
+        public DbSet<Towar> Towary { get; set; }
+        public DbSet<ElementRuchuMagazynowego> ElementyRuchuMagazynowego { get; set; }
+        public DbSet<RuchMagazynowy> RuchyMagazynowe { get; set; }
+        public DbSet<RodzajRuchuMagazynowego> RodzajeRuchuMagazynowego { get; set; }
+        public DbSet<Uzytkownik> Uzytkownicy { get; set; }
     }
 }
