@@ -83,8 +83,6 @@ namespace react_app.Controllers
 
         private IList<Order> GetOrdersToSync(List<Order> projackDbOrders, IList<Order> recentApiOrders, List<Lomag.Entities.Towar> lomagTowars)
         {
-            var xxxx = recentApiOrders.Where(x => x.ProviderOrderId == "923eabf1-7b6b-11eb-bf07-4d69b1ff666c").ToList();
-
             var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
             var ordersToSync = new List<Order>();
 
@@ -230,7 +228,7 @@ namespace react_app.Controllers
                 request3.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
                 var saleOffer = client2.Execute<AllegroSaleOffer>(request3).Data;
 
-                saleOffer.BoughtAt = offer.BoughtAt;
+                saleOffer.BoughtAt = offer.BoughtAt.AddHours(1); //TODO hack bo allegro api tu zwraca o godzine wcześniej niż jest faktycznie
                 saleOffer.OrderId = offer.ProviderOrderId;
                 saleOffer.Quantity = offer.Quantity;
 
