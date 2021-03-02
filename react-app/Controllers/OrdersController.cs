@@ -83,34 +83,45 @@ namespace react_app.Controllers
 
         private IList<Order> GetOrdersToSync(List<Order> projackDbOrders, IList<Order> recentApiOrders, List<Lomag.Entities.Towar> lomagTowars)
         {
+            var xxxx = recentApiOrders.Where(x => x.ProviderOrderId == "923eabf1-7b6b-11eb-bf07-4d69b1ff666c").ToList();
+
+            var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
             var ordersToSync = new List<Order>();
-            foreach (var apiOrder in recentApiOrders.Where(o => o.IsValid))
+
+            var orderGroups = recentApiOrders
+                .Where(o => o.IsValid)
+                .GroupBy(o => new { o.ProviderOrderId, o.ProviderType });
+
+            foreach(var orderGroup in orderGroups)
             {
                 var isDuplicate = projackDbOrders
                     .Union(ordersToSync)
-                    .Any(o => o.ProviderOrderId == apiOrder.ProviderOrderId && o.ProviderType == apiOrder.ProviderType);
+                    .Any(o => o.ProviderOrderId == orderGroup.Key.ProviderOrderId &&
+                              o.ProviderType == orderGroup.Key.ProviderType);
 
                 if (isDuplicate)
                 {
                     continue;
                 }
 
-                var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
-                var detectedCodes = apiOrder.Code.Split(new[] { ' ' })
-                    .Where(strPart => lomagKodyKreskowe.Contains(strPart));
-
-                for (var i = 0; i < apiOrder.Quantity; i++)
+                foreach (var apiOrder in orderGroup)
                 {
-                    foreach (var code in detectedCodes)
+                    var detectedCodes = apiOrder.Code.Split(new[] { ' ' })
+                        .Where(strPart => lomagKodyKreskowe.Contains(strPart));
+
+                    for (var i = 0; i < apiOrder.Quantity; i++)
                     {
-                        ordersToSync.Add(new Order
+                        foreach (var code in detectedCodes)
                         {
-                            Code = code,
-                            Date = apiOrder.Date,
-                            Name = $"{lomagTowars.Single(t => t.KodKreskowy == code).Nazwa} - {apiOrder.Name}",
-                            ProviderOrderId = apiOrder.ProviderOrderId,
-                            ProviderType = apiOrder.ProviderType
-                        });
+                            ordersToSync.Add(new Order
+                            {
+                                Code = code,
+                                Date = apiOrder.Date,
+                                Name = $"{lomagTowars.Single(t => t.KodKreskowy == code).Nazwa} - {apiOrder.Name}",
+                                ProviderOrderId = apiOrder.ProviderOrderId,
+                                ProviderType = apiOrder.ProviderType
+                            });
+                        }
                     }
                 }
             }
