@@ -15,5 +15,7 @@ namespace react_app.Lomag
         public DbSet<RuchMagazynowy> RuchyMagazynowe { get; set; }
         public DbSet<RodzajRuchuMagazynowego> RodzajeRuchuMagazynowego { get; set; }
         public DbSet<Uzytkownik> Uzytkownicy { get; set; }
+        public DbSet<Magazyn> Magazyny { get; set; }
+        public DbSet<Kontrahent> Kontrahenci { get; set; }
     }
 }

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +12,7 @@ using Newtonsoft.Json;
 using react_app.Allegro;
 using react_app.Apaczka;
 using react_app.Lomag;
+using react_app.Lomag.Entities;
 using react_app.Wmprojack;
 using react_app.Wmprojack.Entities;
 using RestSharp;
@@ -48,14 +48,15 @@ namespace react_app.Controllers
             var lomagTowars = lomagDbContext.Towary.ToList();
 
             //TODO remove / tests
-            /*recentApiOrders.Add(new Order
+            /*recentApiOrders.Clear(); //TODO remove
+            recentApiOrders.Add(new Order
             {
                 Date = DateTime.Now,
-                Name = "dwie sztuki tego samego",
-                ProviderOrderId = "05g82981-22gh-11eb-a3df-37uf7454fbg1-allegrokodsztuczny",
+                Name = "produkt",
+                ProviderOrderId = Guid.NewGuid().ToString(),
                 ProviderType = OrderProvider.Allegro,
-                Code = "00000292",
-                Quantity = 2
+                Code = "00000002",
+                Quantity = 1
             });
             recentApiOrders.Add(new Order
             {
@@ -68,10 +69,11 @@ namespace react_app.Controllers
             });*/
 
             var ordersToSync = GetOrdersToSync(projackDbOrders, recentApiOrders, lomagTowars);
-            wmprojackDbContext.AddRange(ordersToSync);
-            wmprojackDbContext.SaveChanges();
 
-            AddOrderSyncsToDb(ordersToSync);
+            AddOrderSyncsToDbs(ordersToSync, lomagTowars);
+
+            wmprojackDbContext.SaveChanges();
+            lomagDbContext.SaveChanges();
 
             var allSyncs = wmprojackDbContext.Orders.OrderByDescending(o => o.Date).ThenBy(o => o.ProviderOrderId).ToList();
             return new
@@ -127,18 +129,49 @@ namespace react_app.Controllers
             return ordersToSync;
         }
 
-        private void AddOrderSyncsToDb(IList<Order> syncs)
+        private void AddOrderSyncsToDbs(IList<Order> ordersToSync, List<Towar> lomagTowars)
         {
-            foreach(var order in syncs)
-            {
-                
-            }    
+            var allegroKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Allegro");
+            var wmprojackKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Weronika Matecka PROJACK");
+            var wmprojackMagazyn = lomagDbContext.Magazyny.Single(k => k.Nazwa == "PROJACK");
+            var wydanie = lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
+            var user = lomagDbContext.Uzytkownicy.First();
 
-            var yyy = lomagDbContext.ElementyRuchuMagazynowego
-                .Include(e => e.Uzytkownik)
-                .Include(e => e.RuchMagazynowy)
-                .ThenInclude(e => e.RodzajRuchuMagazynowego)
-                .ToList();
+            foreach (var order in ordersToSync)
+            {
+                var ruchMagazynowy = new RuchMagazynowy
+                {
+                    Kontrahent = allegroKontrahent,
+                    Company = wmprojackKontrahent,
+                    Data = order.Date,
+                    Utworzono = order.Date,
+                    Zmodyfikowano = order.Date,
+                    Magazyn = wmprojackMagazyn,
+                    NrDokumentu = $"WZ/AUTO/{order.ProviderOrderId}",
+                    RodzajRuchuMagazynowego = wydanie,
+                    Uzytkownik = user,
+                    Operator = -1
+                };
+
+                var towar = lomagTowars.Single(t => t.KodKreskowy == order.Code);
+
+                var elementRuchu = new ElementRuchuMagazynowego
+                {
+                    Towar = towar,
+                    CenaJednostkowa = 0,
+                    Ilosc = 1,
+                    RuchMagazynowy = ruchMagazynowy,
+                    Utworzono = order.Date,
+                    Zmodyfikowano = order.Date,
+                    Uzytkownik = user,
+                    Uwagi = string.Empty
+                };
+
+                lomagDbContext.RuchyMagazynowe.Add(ruchMagazynowy);
+                lomagDbContext.ElementyRuchuMagazynowego.Add(elementRuchu);
+            }
+
+            wmprojackDbContext.AddRange(ordersToSync);
         }
 
         private IList<Order> GetRecentOrdersFromProviders()
