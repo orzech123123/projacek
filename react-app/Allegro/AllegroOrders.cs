@@ -41,10 +41,6 @@ namespace react_app.Allegro
         public string Name { get; set; }
         public AllegroSaleOfferExternal External { get; set; }
 
-        public DateTime BoughtAt { get; set; }
-        public string OrderId { get; set; }
-        public int Quantity { get; set; }
-
     }
 
     public class AllegroSaleOfferExternal

@@ -17,14 +17,6 @@ namespace react_app.Wmprojack.Entities
         public string Name { get; set; }
         [Required]
         public string Code { get; set; }
-
-        [NotMapped]
-        public int Quantity { get; set; }
-        [NotMapped]
-        public bool IsValid => !string.IsNullOrEmpty(ProviderOrderId) &&
-            !string.IsNullOrEmpty(Name) &&
-            Quantity > 0 &&
-            !string.IsNullOrEmpty(Code);
     }
 
     public enum OrderProvider

@@ -9,6 +9,7 @@ using Newtonsoft.Json.Converters;
 using react_app.Allegro;
 using react_app.Apaczka;
 using react_app.Lomag;
+using react_app.Services;
 using react_app.Wmprojack;
 
 namespace react_app
@@ -50,6 +51,9 @@ namespace react_app
                 o => o. UseSqlServer(Configuration.GetConnectionString("wmprojack"),
                 options => options.EnableRetryOnFailure())
             );
+
+            services.AddTransient<IOrderProvider, AllegroOrderProvider>();
+            services.AddTransient<IOrderProvider, ApaczkaOrderProvider>();
         }
 
 
