@@ -38,8 +38,7 @@ namespace react_app.Controllers
             var recentApiOrders = orderProviders.SelectMany(p => p.GetOrders()).ToList();
 
             //TODO remove / tests
-            recentApiOrders.Clear(); //TODO remove
-            recentApiOrders.Add(new OrderDto
+            /*recentApiOrders.Add(new OrderDto
             {
                 Date = DateTime.Now,
                 Name = "produkt",
@@ -48,7 +47,7 @@ namespace react_app.Controllers
                 Codes = "00000002",
                 Quantity = 1
             });
-            /*recentApiOrders.Add(new Order
+            recentApiOrders.Add(new Order
             {
                 Date = DateTime.Now,
                 Name = "zamówienie z 4 w sumie sztukami",
@@ -62,8 +61,8 @@ namespace react_app.Controllers
 
             AddOrdersToDbs(ordersToSync, lomagTowars);
 
-            //wmprojackDbContext.SaveChanges();
-            //lomagDbContext.SaveChanges();
+            wmprojackDbContext.SaveChanges();
+            lomagDbContext.SaveChanges();
 
             var allOrders = wmprojackDbContext.Orders.OrderByDescending(o => o.Date).ThenBy(o => o.ProviderOrderId).ToList();
             return new
