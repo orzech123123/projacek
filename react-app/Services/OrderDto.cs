@@ -5,7 +5,6 @@ namespace react_app.Services
 {
     public class OrderDto
     {
-        public string Id { get; set; }
         public DateTime Date { get; set; }
         public string ProviderOrderId { get; set; }
         public OrderProvider ProviderType { get; set; }
