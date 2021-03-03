@@ -9,7 +9,6 @@ using RestSharp;
 namespace react_app.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
     public class AllegroController : ControllerBase
     {
         private readonly IOptions<AllegroSettings> allegroSettings;
@@ -21,7 +20,19 @@ namespace react_app.Controllers
             this.env = env;
         }
 
-        [HttpGet]
+
+        [HttpGet("/[controller]/settings")]
+        public IActionResult GetSettings()
+        {
+            return Ok(new
+            {
+                clientId = allegroSettings.Value.ClientId,
+                returnUrl = allegroSettings.Value.ReturnUrl
+            });
+        }
+
+
+        [HttpGet("/[controller]")]
         public async Task<IActionResult> UpdateAccessToken(string code)
         {
             var client = new RestClient("https://allegro.pl");
@@ -31,9 +42,9 @@ namespace react_app.Controllers
             request.AddParameter("grant_type", "authorization_code");
             request.AddParameter("code", code);
             request.AddParameter("redirect_uri", allegroSettings.Value.ReturnUrl);
-            var tokenResponse = client.Execute<AllegroAccessTokenResponse>(request).Data;
+            var response = await client.ExecuteAsync<AllegroAccessTokenResponse>(request);
 
-            System.IO.File.WriteAllText(Path.Combine(env.ContentRootPath, "token"), tokenResponse.AccessToken);
+            System.IO.File.WriteAllText(Path.Combine(env.ContentRootPath, "token"), response.Data.AccessToken);
 
             return new RedirectResult("/");
         }

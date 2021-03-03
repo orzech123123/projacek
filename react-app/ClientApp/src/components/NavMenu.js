@@ -11,9 +11,14 @@ export class NavMenu extends Component {
 
     this.toggleNavbar = this.toggleNavbar.bind(this);
     this.state = {
-      collapsed: true
+        collapsed: true,
+        allegroSettings: { }
     };
-  }
+   }
+
+   componentDidMount() {
+       this.fetchSettings();
+   }
 
   toggleNavbar () {
     this.setState({
@@ -34,7 +39,7 @@ export class NavMenu extends Component {
                   <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
                 </NavItem>
                 <NavItem>
-                    <a href="https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=b9b81baa6aad4cf29cd450744ee1379c&redirect_uri=https://localhost:44331/allegro" className="text-dark nav-link">Zaloguj do Allegro</a>
+                    <a href={"https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=" + this.state.allegroSettings.clientId + "&redirect_uri=" + this.state.allegroSettings.returnUrl } className="text-dark nav-link">Zaloguj do Allegro</a>
                 </NavItem>
                 <NavItem>
                   <NavLink tag={Link} className="text-dark" to="/fetch-data">Zamówienia</NavLink>
@@ -45,5 +50,12 @@ export class NavMenu extends Component {
         </Navbar>
       </header>
     );
-  }
+    }
+
+
+    async fetchSettings() {
+        const response = await fetch('allegro/settings');
+        const data = await response.json();
+        this.setState({ collapsed: this.state.collapsed, allegroSettings: data });
+    }
 }
