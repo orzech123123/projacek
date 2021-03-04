@@ -5,14 +5,14 @@ export class FetchData extends Component {
 
   constructor(props) {
     super(props);
-      this.state = { orders: [], syncs: [], loading: true };
+      this.state = { syncs: [], loading: true };
   }
 
   componentDidMount() {
     this.populateWeatherData();
   }
 
-  static renderOrdersTable(orders, syncs) {
+  static renderOrdersTable(syncs) {
       return (
           <div>
               <table className='table table-striped' aria-labelledby="tabelLabel">
@@ -41,29 +41,6 @@ export class FetchData extends Component {
                       )}
                   </tbody>
               </table>
-
-              <table className='table table-striped' aria-labelledby="tabelLabel">
-                  <thead>
-                      <tr>
-                          <th>Provider</th>
-                          <th>Provider Id</th>
-                          <th>Name</th>
-                          <th>Code</th>
-                          <th>Date</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      {orders.map((order, index) =>
-                          <tr key={index}>
-                              <td>{order.providerType}</td>
-                              <td>{order.providerOrderId}</td>
-                              <td>{order.name}</td>
-                              <td>{order.code}</td>
-                              <td>{order.date}</td>
-                          </tr>
-                      )}
-                  </tbody>
-              </table>
           </div>
     );
   }
@@ -71,7 +48,7 @@ export class FetchData extends Component {
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
-        : FetchData.renderOrdersTable(this.state.orders, this.state.syncs);
+        : FetchData.renderOrdersTable(this.state.syncs);
 
     return (
       <div>
@@ -86,6 +63,6 @@ export class FetchData extends Component {
     const response = await fetch('orders');
       const data = await response.json();
       console.log(data);
-      this.setState({ orders: data.orders, syncs: data.syncs, loading: false });
+      this.setState({ syncs: data.syncs, loading: false });
   }
 }

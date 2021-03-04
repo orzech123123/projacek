@@ -6,8 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Converters;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 using react_app.Allegro;
 using react_app.Apaczka;
+using react_app.BackgroundTasks;
 using react_app.Lomag;
 using react_app.Services;
 using react_app.Wmprojack;
@@ -54,6 +58,17 @@ namespace react_app
 
             services.AddTransient<IOrderProvider, AllegroOrderProvider>();
             services.AddTransient<IOrderProvider, ApaczkaOrderProvider>();
+            services.AddTransient<OrderService>();
+
+            // Add Quartz services
+            services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+            // Add our job
+            services.AddTransient<OrdersSyncBackgroundJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(OrdersSyncBackgroundJob),
+                cronExpression: "0/5 * * * * ?")); // run every 5 seconds
+            services.AddHostedService<QuartzHostedService>();
         }
 
 
