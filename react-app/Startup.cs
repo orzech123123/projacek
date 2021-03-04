@@ -67,7 +67,7 @@ namespace react_app
             services.AddTransient<OrdersSyncBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(OrdersSyncBackgroundJob),
-                cronExpression: "0/5 * * * * ?")); // run every 5 seconds
+                cronExpression: "0/30 * * * * ?")); // run every 5 seconds
             services.AddHostedService<QuartzHostedService>();
         }
 
