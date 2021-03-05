@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import  Xxx  from "./Orders";
+
 export class FetchData extends Component {
   static displayName = FetchData.name;
 
@@ -52,6 +54,8 @@ export class FetchData extends Component {
 
     return (
       <div>
+        {/*<Xxx />*/}
+
         <h1 id="tabelLabel" >Orders</h1>
         <p>This component demonstrates fetching Jacek's apaczka orders from the server.</p>
         {contents}

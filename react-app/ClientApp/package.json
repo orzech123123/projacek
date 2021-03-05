@@ -13,7 +13,9 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.4.4",
     "reactstrap": "^8.4.1",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "react-table": "^7.2.2",
+    "namor": "^2.0.2"
   },
   "devDependencies": {
     "ajv": "^6.9.1",

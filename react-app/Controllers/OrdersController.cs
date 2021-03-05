@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using react_app.Lomag;
-using react_app.Services;
 using react_app.Wmprojack;
 
 namespace react_app.Controllers
@@ -13,10 +10,7 @@ namespace react_app.Controllers
     {
         private readonly WmprojackDbContext wmprojackDbContext;
 
-        public OrdersController(
-            IEnumerable<IOrderProvider> orderProviders,
-            LomagDbContext lomagDbContext,
-            WmprojackDbContext wmprojackDbContext)
+        public OrdersController(WmprojackDbContext wmprojackDbContext)
         {
             this.wmprojackDbContext = wmprojackDbContext;
         }
