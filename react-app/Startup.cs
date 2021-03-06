@@ -73,7 +73,7 @@ namespace react_app
             services.AddTransient<RefreshAllegrroTokenBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(RefreshAllegrroTokenBackgroundJob),
-                cronExpression: "0/15 * * * * ?")); 
+                cronExpression: "0/59 * * * * ?")); 
         }
 
 
