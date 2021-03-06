@@ -43,6 +43,7 @@ namespace react_app
 
             services.Configure<ApaczkaSettings>(Configuration.GetSection("apaczka"));
             services.Configure<AllegroSettings>(Configuration.GetSection("allegro"));
+            services.Configure<Settings>(Configuration.GetSection("settings"));
 
             var lomagSettings = new LomagSettings();
             Configuration.GetSection("lomag").Bind(lomagSettings);
@@ -60,15 +61,19 @@ namespace react_app
             services.AddTransient<IOrderProvider, ApaczkaOrderProvider>();
             services.AddTransient<OrderService>();
 
-            // Add Quartz services
             services.AddSingleton<IJobFactory, SingletonJobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
-            // Add our job
+            services.AddHostedService<QuartzHostedService>();
+
             services.AddTransient<OrdersSyncBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(OrdersSyncBackgroundJob),
-                cronExpression: "0/30 * * * * ?")); // run every 5 seconds
-            services.AddHostedService<QuartzHostedService>();
+                cronExpression: "0/30 * * * * ?")); 
+
+            services.AddTransient<RefreshAllegrroTokenBackgroundJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(RefreshAllegrroTokenBackgroundJob),
+                cronExpression: "0/15 * * * * ?")); 
         }
 
 

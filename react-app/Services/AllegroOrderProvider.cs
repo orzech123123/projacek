@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Options;
 using react_app.Allegro;
 using react_app.Wmprojack.Entities;
 using RestSharp;
@@ -11,10 +12,12 @@ namespace react_app.Services
     public class AllegroOrderProvider : IOrderProvider
     {
         private readonly IWebHostEnvironment env;
+        private readonly IOptions<Settings> settings;
 
-        public AllegroOrderProvider(IWebHostEnvironment env)
+        public AllegroOrderProvider(IWebHostEnvironment env, IOptions<Settings> settings)
         {
             this.env = env;
+            this.settings = settings;
         }
 
         public IEnumerable<OrderDto> GetOrders()
@@ -27,6 +30,7 @@ namespace react_app.Services
             request2.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
             request2.AddParameter("limit", "25");
             request2.AddParameter("fulfillment.status", "SENT");
+            request2.AddParameter("updatedAt.gte", settings.Value.StartOrdersSyncFrom.AddHours(-1).ToString("yyyy-MM-ddTHH:mm:ssZ"));
 
             var response = client2.Execute<AllegroCheckoutFormsResponse>(request2).Data;
 

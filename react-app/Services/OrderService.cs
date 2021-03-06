@@ -26,7 +26,7 @@ namespace react_app.Services
             this.wmprojackDbContext = wmprojackDbContext;
         }
 
-        public async Task SyncOrdersAsync()
+        public async Task<int> SyncOrdersAsync()
         {
             var projackDbOrders = await wmprojackDbContext.Orders.ToListAsync();
             var lomagTowars = await lomagDbContext.Towary.ToListAsync();
@@ -58,12 +58,14 @@ namespace react_app.Services
 
             if (!ordersToSync.Any())
             {
-                return;
+                return 0;
             }
 
             AddOrdersToDbs(ordersToSync, lomagTowars);
             wmprojackDbContext.SaveChanges();
             lomagDbContext.SaveChanges();
+
+            return ordersToSync.Count();
         }
 
         private IList<Order> GetOrdersToSync(IEnumerable<Order> existingOrders, IEnumerable<OrderDto> recentApiOrders, IEnumerable<Towar> lomagTowars)

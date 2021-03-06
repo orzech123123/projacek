@@ -203,8 +203,6 @@ function MegaTable() {
                 return response.json();
             })
             .then(data => {
-
-
                 if (fetchId === fetchIdRef.current) {
                     setData(data.syncs);
 

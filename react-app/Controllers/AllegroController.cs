@@ -45,6 +45,7 @@ namespace react_app.Controllers
             var response = await client.ExecuteAsync<AllegroAccessTokenResponse>(request);
 
             System.IO.File.WriteAllText(Path.Combine(env.ContentRootPath, "token"), response.Data.AccessToken);
+            System.IO.File.WriteAllText(Path.Combine(env.ContentRootPath, "refresh-token"), response.Data.RefreshToken);
 
             return new RedirectResult("/");
         }

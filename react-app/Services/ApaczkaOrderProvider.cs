@@ -14,10 +14,13 @@ namespace react_app.Services
     public class ApaczkaOrderProvider : IOrderProvider
     {
         private readonly IOptions<ApaczkaSettings> apaczkaSettings;
+        private readonly IOptions<Settings> settings;
 
-        public ApaczkaOrderProvider(IOptions<ApaczkaSettings> apaczkaSettings)
+        public ApaczkaOrderProvider(IOptions<ApaczkaSettings> apaczkaSettings,
+            IOptions<Settings> settings)
         {
             this.apaczkaSettings = apaczkaSettings;
+            this.settings = settings;
         }
 
         public IEnumerable<OrderDto> GetOrders()
@@ -48,7 +51,9 @@ namespace react_app.Services
 
             var response = client.Execute<ApaczkaOrdersResponse>(request).Data;
 
-            return response.Response.Orders
+            var orders = response.Response.Orders.Where(o => o.Created > settings.Value.StartOrdersSyncFrom);
+
+            return orders
                 .Select(o => new OrderDto
                 {
                     ProviderOrderId = o.Id,
