@@ -26,14 +26,14 @@ namespace react_app.Services
             request2.AddHeader("Authorization", $"Bearer {token}");
             request2.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
             request2.AddParameter("limit", "25");
-            //request2.AddParameter("fulfillment.status", "SENT");
+            request2.AddParameter("fulfillment.status", "SENT");
 
             var response = client2.Execute<AllegroCheckoutFormsResponse>(request2).Data;
 
             var offers = response.CheckoutForms.SelectMany(f => f.LineItems.Select(li => new
             {
                 ProviderOrderId = f.Id,
-                li.BoughtAt,
+                f.UpdatedAt,
                 OfferId = li.Offer.Id,
                 li.Quantity
             }));
@@ -51,7 +51,7 @@ namespace react_app.Services
                     ProviderType = OrderProvider.Allegro,
                     Name = saleOffer.Name,
                     Codes = saleOffer.External?.Id,
-                    Date = offer.BoughtAt.AddHours(1),
+                    Date = offer.UpdatedAt.AddHours(1),
                     Quantity = offer.Quantity
                 };
             }

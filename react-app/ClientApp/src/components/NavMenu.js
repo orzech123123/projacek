@@ -36,7 +36,7 @@ export class NavMenu extends Component {
             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
               <ul className="navbar-nav flex-grow">
                 <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/">Zamówienia</NavLink>
+                    <NavLink tag={Link} className="text-dark" to="/">Wydania</NavLink>
                 </NavItem>
                 <NavItem>
                     <a href={"https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=" + this.state.allegroSettings.clientId + "&redirect_uri=" + this.state.allegroSettings.returnUrl } className="text-dark nav-link">Zaloguj do Allegro</a>

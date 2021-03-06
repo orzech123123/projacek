@@ -176,6 +176,11 @@ function MegaTable() {
                     if (props.row.original.providerType === "Allegro") {
                         return <a target="_blank" href={"https://allegro.pl/moje-allegro/sprzedaz/zamowienia/" + props.value}>Zamówienie</a>
                     }
+
+                    if (props.row.original.providerType === "Apaczka") {
+                        return <a target="_blank" href={"https://panel.apaczka.pl/zlecenia/" + props.value}>Zamówienie</a>
+                    }
+
                     return (null);
                 }
             }

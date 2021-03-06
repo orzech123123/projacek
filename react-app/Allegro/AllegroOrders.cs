@@ -17,13 +17,13 @@ namespace react_app.Allegro
     public class AllegroCheckoutForm
     {
         public string Id { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public List<AllegroCheckoutFormLineItem> LineItems { get; set; }
     }
 
     public class AllegroCheckoutFormLineItem
     {
         public string Id { get; set; }
-        public DateTime BoughtAt { get; set; }
         public int Quantity { get; set; }
         public AllegroCheckoutFormOffer Offer { get; set; }
 
