@@ -1,8 +1,5 @@
 ﻿import React, { useState, useEffect, useCallback } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
-import makeData from "./makeData";
-
-const serverData = makeData(10000);
 
 function Table({
     columns,
@@ -143,7 +140,7 @@ function Table({
     );
 }
 
-function Xxx() {
+function MegaTable() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = React.useState(false);
     const [pageCount, setPageCount] = React.useState(0);
@@ -153,68 +150,62 @@ function Xxx() {
     const columns = React.useMemo(
         () => [
             {
-                Header: "First Name",
-                accessor: "firstName"
+                Header: "Provider Type",
+                accessor: "providerType"
             },
             {
-                Header: "Last Name",
-                accessor: "lastName"
+                Header: "Name",
+                accessor: "name"
+            },
+            {
+                Header: "Code",
+                accessor: "code"
+            },
+            {
+                Header: "Date",
+                accessor: "date"
+            },
+            {
+                Header: 'Actions',
+                id: 'actions',
+                disableSortBy: true,
+                accessor: d => d.providerOrderId, 
+                Cell: props => {
+                    if (props.row.original.providerType === "Allegro") {
+                        return <a target="_blank" href={"https://allegro.pl/moje-allegro/sprzedaz/zamowienia/" + props.value}>Zamówienie</a>
+                    }
+                    return (null);
+                }
             }
+         
         ],
         []
     );
 
     const fetchData = React.useCallback(({ pageSize, pageIndex, sortBy }) => {
-        // This will get called when the table needs new data
-        // You could fetch your data from literally anywhere,
-        // even a server. But for this example, we'll just fake it.
-
-        console.log(pageSize + " " + pageIndex + " " + sortBy);
-        // Give this fetch an ID
         const fetchId = ++fetchIdRef.current;
 
-        // Set the loading state
         setLoading(true);
 
+        var orderBy = sortBy.length > 0 ? sortBy[0].id : null;
+        var orderByParam = !orderBy || orderBy == "null" ? "" : "&orderBy=" + orderBy;
+        var isDescending = sortBy.length > 0 ? sortBy[0].desc : true;
 
-        // let headers = new Headers();
-        // headers.append('Access-Control-Allow-Origin', '*');
-         fetch('/orders'/*, { headers: headers }*/)
-             .then(res => console.log(res.json()));
+        fetch('/orders?isDescending=' + isDescending + orderByParam + "&pageSize=" + pageSize + "&pageIndex=" + pageIndex)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(data => {
 
-        // We'll even set a delay to simulate a server here
-        setTimeout(() => {
-            // Only update the data if this is the latest fetch
-            if (fetchId === fetchIdRef.current) {
-                const startRow = pageSize * pageIndex;
-                const endRow = startRow + pageSize;
-                if (sortBy.length === 0) {
-                    setData(serverData.sort().slice(startRow, endRow));
-                } else {
-                    setData(
-                        serverData
-                            .sort((a, b) => {
-                                const field = sortBy[0].id;
-                                const desc = sortBy[0].desc;
-                                if (a[field] < b[field]) {
-                                    return desc ? -1 : 1;
-                                }
-                                if (a[field] > b[field]) {
-                                    return desc ? 1 : -1;
-                                }
-                                return 0;
-                            })
-                            .slice(startRow, endRow)
-                    );
+
+                if (fetchId === fetchIdRef.current) {
+                    setData(data.syncs);
+
+                    setPageCount(Math.ceil(data.count / pageSize));
+
+                    setLoading(false);
                 }
-
-                // Your server could send back total page count.
-                // For now we'll just fake it, too
-                setPageCount(Math.ceil(serverData.length / pageSize));
-
-                setLoading(false);
-            }
-        }, 1000);
+            });
     }, []);
 
     return (
@@ -228,4 +219,4 @@ function Xxx() {
     );
 }
 
-export default Xxx;
+export default MegaTable;

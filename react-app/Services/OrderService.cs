@@ -56,8 +56,12 @@ namespace react_app.Services
 
             var ordersToSync = GetOrdersToSync(projackDbOrders, recentApiOrders, lomagTowars);
 
-            AddOrdersToDbs(ordersToSync, lomagTowars);
+            if (!ordersToSync.Any())
+            {
+                return;
+            }
 
+            AddOrdersToDbs(ordersToSync, lomagTowars);
             wmprojackDbContext.SaveChanges();
             lomagDbContext.SaveChanges();
         }
@@ -112,11 +116,6 @@ namespace react_app.Services
 
         private void AddOrdersToDbs(IEnumerable<Order> ordersToSync, IEnumerable<Towar> lomagTowars)
         {
-            if(!ordersToSync.Any())
-            {
-                return;
-            }    
-
             var allegroKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Allegro");
             var wmprojackKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Weronika Matecka PROJACK");
             var wmprojackMagazyn = lomagDbContext.Magazyny.Single(k => k.Nazwa == "PROJACK");
