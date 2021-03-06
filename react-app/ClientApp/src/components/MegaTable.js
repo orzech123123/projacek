@@ -1,6 +1,8 @@
 ﻿import React, { useState, useEffect, useCallback } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
 
+import "../styles/MegaTable.css";
+
 function Table({
     columns,
     data,
@@ -150,23 +152,23 @@ function MegaTable() {
     const columns = React.useMemo(
         () => [
             {
-                Header: "Provider Type",
+                Header: "Nadano przez",
                 accessor: "providerType"
             },
             {
-                Header: "Name",
+                Header: "Nazwa towaru - aukcji",
                 accessor: "name"
             },
             {
-                Header: "Code",
+                Header: "Kod",
                 accessor: "code"
             },
             {
-                Header: "Date",
+                Header: "Data",
                 accessor: "date"
             },
             {
-                Header: 'Actions',
+                Header: 'Akcje',
                 id: 'actions',
                 disableSortBy: true,
                 accessor: d => d.providerOrderId, 
