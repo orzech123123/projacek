@@ -31,18 +31,15 @@ export class NavMenu extends Component {
       <header>
         <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
           <Container>
-            <NavbarBrand tag={Link} to="/">react_app</NavbarBrand>
+                    <NavbarBrand tag={Link} to="/"><img style={{ width: 200 + "px" }} src="/logo.jpg" /></NavbarBrand>
             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
               <ul className="navbar-nav flex-grow">
                 <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
+                    <NavLink tag={Link} className="text-dark" to="/">Zamówienia</NavLink>
                 </NavItem>
                 <NavItem>
                     <a href={"https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=" + this.state.allegroSettings.clientId + "&redirect_uri=" + this.state.allegroSettings.returnUrl } className="text-dark nav-link">Zaloguj do Allegro</a>
-                </NavItem>
-                <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/fetch-data">Zamówienia</NavLink>
                 </NavItem>
               </ul>
             </Collapse>
