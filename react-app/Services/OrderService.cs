@@ -126,13 +126,15 @@ namespace react_app.Services
 
             foreach (var order in ordersToSync)
             {
+                var date = DateTime.Now; 
+
                 var ruchMagazynowy = new RuchMagazynowy
                 {
                     Kontrahent = allegroKontrahent,
                     Company = wmprojackKontrahent,
-                    Data = order.Date,
-                    Utworzono = order.Date,
-                    Zmodyfikowano = order.Date,
+                    Data = date,
+                    Utworzono = date,
+                    Zmodyfikowano = date,
                     Magazyn = wmprojackMagazyn,
                     NrDokumentu = $"WZ/AUTO/{order.ProviderOrderId}",
                     RodzajRuchuMagazynowego = wydanie,
@@ -142,16 +144,20 @@ namespace react_app.Services
 
                 var towar = lomagTowars.Single(t => t.KodKreskowy == order.Code);
 
+                var uwagi = order.ProviderType == OrderProvider.Allegro ?
+                    $"https://allegro.pl/moje-allegro/sprzedaz/zamowienia/{order.ProviderOrderId}" :
+                    $"https://panel.apaczka.pl/zlecenia/{order.ProviderOrderId}";
+
                 var elementRuchu = new ElementRuchuMagazynowego
                 {
                     Towar = towar,
                     CenaJednostkowa = 0,
                     Ilosc = 1,
                     RuchMagazynowy = ruchMagazynowy,
-                    Utworzono = order.Date,
-                    Zmodyfikowano = order.Date,
+                    Utworzono = date,
+                    Zmodyfikowano = date,
                     Uzytkownik = user,
-                    Uwagi = string.Empty
+                    Uwagi = uwagi
                 };
 
                 lomagDbContext.RuchyMagazynowe.Add(ruchMagazynowy);
