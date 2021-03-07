@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace react_app.Wmprojack.Entities
 {
@@ -17,6 +16,13 @@ namespace react_app.Wmprojack.Entities
         public string Name { get; set; }
         [Required]
         public string Code { get; set; }
+
+        public string GetUrl()
+        {
+            return ProviderType == OrderProvider.Allegro ?
+                $"https://allegro.pl/moje-allegro/sprzedaz/zamowienia/{ProviderOrderId}" :
+                $"https://panel.apaczka.pl/zlecenia/{ProviderOrderId}";
+        }
     }
 
     public enum OrderProvider

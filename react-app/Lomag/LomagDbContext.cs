@@ -17,5 +17,6 @@ namespace react_app.Lomag
         public DbSet<Uzytkownik> Uzytkownicy { get; set; }
         public DbSet<Magazyn> Magazyny { get; set; }
         public DbSet<Kontrahent> Kontrahenci { get; set; }
+        public DbSet<ZaleznosciPZWZ> ZaleznosciPZWZ{ get; set; }
     }
 }

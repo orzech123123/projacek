@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using react_app.Allegro;
 using react_app.Wmprojack.Entities;
@@ -13,15 +14,24 @@ namespace react_app.Services
     {
         private readonly IWebHostEnvironment env;
         private readonly IOptions<Settings> settings;
+        private readonly ILogger<AllegroOrderProvider> logger;
 
-        public AllegroOrderProvider(IWebHostEnvironment env, IOptions<Settings> settings)
+        public AllegroOrderProvider(IWebHostEnvironment env, IOptions<Settings> settings, ILogger<AllegroOrderProvider> logger)
         {
             this.env = env;
             this.settings = settings;
+            this.logger = logger;
         }
 
         public IEnumerable<OrderDto> GetOrders()
         {
+            if (!File.Exists(Path.Combine(env.ContentRootPath, "token")))
+            {
+                logger.LogError($"Problem z połączeniem do Allegro. Brak tokenu. Zaloguj się");
+
+                yield break;
+            }
+
             var token = File.ReadAllText(Path.Combine(env.ContentRootPath, "token"));
 
             var client2 = new RestClient("https://api.allegro.pl");

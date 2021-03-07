@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using react_app.Lomag;
 using react_app.Lomag.Entities;
 using react_app.Wmprojack;
@@ -15,15 +16,18 @@ namespace react_app.Services
         private readonly IEnumerable<IOrderProvider> orderProviders;
         private readonly LomagDbContext lomagDbContext;
         private readonly WmprojackDbContext wmprojackDbContext;
+        private readonly ILogger<OrderService> logger;
 
         public OrderService(
             IEnumerable<IOrderProvider> orderProviders,
             LomagDbContext lomagDbContext,
-            WmprojackDbContext wmprojackDbContext)
+            WmprojackDbContext wmprojackDbContext,
+            ILogger<OrderService> logger)
         {
             this.orderProviders = orderProviders;
             this.lomagDbContext = lomagDbContext;
             this.wmprojackDbContext = wmprojackDbContext;
+            this.logger = logger;
         }
 
         public async Task<int> SyncOrdersAsync()
@@ -39,9 +43,9 @@ namespace react_app.Services
             {
                 Date = DateTime.Now,
                 Name = "produkt",
-                ProviderOrderId = Guid.NewGuid().ToString(),
+                ProviderOrderId = "sztrytkod",
                 ProviderType = OrderProvider.Allegro,
-                Codes = "00000002",
+                Codes = "00000008",
                 Quantity = 1
             });
             /*recentApiOrders.Add(new Order
@@ -62,6 +66,7 @@ namespace react_app.Services
             }
 
             AddOrdersToDbs(ordersToSync, lomagTowars);
+
             wmprojackDbContext.SaveChanges();
             lomagDbContext.SaveChanges();
 
@@ -121,12 +126,12 @@ namespace react_app.Services
             var allegroKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Allegro");
             var wmprojackKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Weronika Matecka PROJACK");
             var wmprojackMagazyn = lomagDbContext.Magazyny.Single(k => k.Nazwa == "PROJACK");
-            var wydanie = lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
+            var wydanieRodzajRuchu = lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
             var user = lomagDbContext.Uzytkownicy.First();
 
             foreach (var order in ordersToSync)
             {
-                var date = DateTime.Now; 
+                var date = order.Date; 
 
                 var ruchMagazynowy = new RuchMagazynowy
                 {
@@ -137,18 +142,16 @@ namespace react_app.Services
                     Zmodyfikowano = date,
                     Magazyn = wmprojackMagazyn,
                     NrDokumentu = $"WZ/AUTO/{order.ProviderOrderId}",
-                    RodzajRuchuMagazynowego = wydanie,
+                    RodzajRuchuMagazynowego = wydanieRodzajRuchu,
                     Uzytkownik = user,
                     Operator = -1
                 };
 
                 var towar = lomagTowars.Single(t => t.KodKreskowy == order.Code);
 
-                var uwagi = order.ProviderType == OrderProvider.Allegro ?
-                    $"https://allegro.pl/moje-allegro/sprzedaz/zamowienia/{order.ProviderOrderId}" :
-                    $"https://panel.apaczka.pl/zlecenia/{order.ProviderOrderId}";
+                var uwagi = order.GetUrl();
 
-                var elementRuchu = new ElementRuchuMagazynowego
+                var wydanieElementRuchu = new ElementRuchuMagazynowego
                 {
                     Towar = towar,
                     CenaJednostkowa = 0,
@@ -160,8 +163,33 @@ namespace react_app.Services
                     Uwagi = uwagi
                 };
 
+                var przyjecieElementRuchu = lomagDbContext.ElementyRuchuMagazynowego
+                    .Where(e => e.Towar.IdTowaru == towar.IdTowaru)
+                    .Where(e => e.RuchMagazynowy.RodzajRuchuMagazynowego.Nazwa == "Przyjęcie na magazyn")
+                    .Where(e => e.Ilosc != null && e.Wydano != null)
+                    .OrderByDescending(e => e.Ilosc - e.Wydano)
+                    .Where(e => e.Ilosc - e.Wydano > 0)
+                    .FirstOrDefault();
+
+                if(przyjecieElementRuchu == null)
+                {
+                    logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}. Zamówienie: {order.GetUrl()}");
+
+                    continue;
+                }
+
+                przyjecieElementRuchu.Wydano++;
+
+                var zaleznoscPZWZ = new ZaleznosciPZWZ
+                {
+                    ElementPZ = przyjecieElementRuchu,
+                    ElementWZ = wydanieElementRuchu,
+                    Ilosc = 1
+                };
+
                 lomagDbContext.RuchyMagazynowe.Add(ruchMagazynowy);
-                lomagDbContext.ElementyRuchuMagazynowego.Add(elementRuchu);
+                lomagDbContext.ElementyRuchuMagazynowego.Add(wydanieElementRuchu);
+                lomagDbContext.ZaleznosciPZWZ.Add(zaleznoscPZWZ);
             }
 
             wmprojackDbContext.AddRange(ordersToSync);

@@ -68,7 +68,7 @@ namespace react_app
             services.AddTransient<OrdersSyncBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(OrdersSyncBackgroundJob),
-                cronExpression: "0/30 * * * * ?")); 
+                cronExpression: "0/30 * * * * ?"));
 
             services.AddTransient<RefreshAllegrroTokenBackgroundJob>();
             services.AddSingleton(new JobSchedule(

@@ -38,12 +38,6 @@ namespace react_app.BackgroundTasks
                 return;
             }
 
-            if (!File.Exists(Path.Combine(env.ContentRootPath, "token")))
-            {
-                _logger.LogError($"Brak tokenu. Zaloguj się do Allegro");
-                return;
-            }
-
             using (var scope = serviceProvider.CreateScope())
             {
                 var orderService = scope.ServiceProvider.GetService<OrderService>();
