@@ -15,6 +15,7 @@ using react_app.BackgroundTasks;
 using react_app.Lomag;
 using react_app.Services;
 using react_app.Wmprojack;
+using Serilog;
 
 namespace react_app
 {
@@ -73,7 +74,7 @@ namespace react_app
             services.AddTransient<RefreshAllegrroTokenBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(RefreshAllegrroTokenBackgroundJob),
-                cronExpression: "0/59 * * * * ?")); 
+                cronExpression: "0/45 * * * * ?")); 
         }
 
 
@@ -95,6 +96,8 @@ namespace react_app
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            app.UseSerilogRequestLogging();
 
             app.UseRouting();
 
