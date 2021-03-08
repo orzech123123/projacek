@@ -166,19 +166,18 @@ namespace react_app.Services
                 var przyjecieElementRuchu = lomagDbContext.ElementyRuchuMagazynowego
                     .Where(e => e.Towar.IdTowaru == towar.IdTowaru)
                     .Where(e => e.RuchMagazynowy.RodzajRuchuMagazynowego.Nazwa == "Przyjęcie na magazyn")
-                    .Where(e => e.Ilosc != null && e.Wydano != null)
-                    .OrderByDescending(e => e.Ilosc - e.Wydano)
-                    .Where(e => e.Ilosc - e.Wydano > 0)
+                    .Where(e => e.Ilosc != null)
+                    .Where(e => e.Wydano == null || e.Ilosc - (e.Wydano ?? 0) > 0)
+                    .OrderByDescending(e => e.Ilosc - (e.Wydano ?? 0))
                     .FirstOrDefault();
 
                 if(przyjecieElementRuchu == null)
                 {
                     logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}. Zamówienie: {order.GetUrl()}");
-
                     continue;
                 }
 
-                przyjecieElementRuchu.Wydano++;
+                przyjecieElementRuchu.Wydano = przyjecieElementRuchu.Wydano != null ? przyjecieElementRuchu.Wydano + 1 : 1;
 
                 var zaleznoscPZWZ = new ZaleznosciPZWZ
                 {
