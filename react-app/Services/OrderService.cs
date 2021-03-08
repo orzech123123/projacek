@@ -32,9 +32,7 @@ namespace react_app.Services
 
         public async Task<int> SyncOrdersAsync()
         {
-            var projackDbOrders = await wmprojackDbContext.Orders.ToListAsync();
             var lomagTowars = await lomagDbContext.Towary.ToListAsync();
-
             var recentApiOrders = orderProviders.SelectMany(p => p.GetOrders()).ToList();
 
             //TODO remove / tests
@@ -58,7 +56,7 @@ namespace react_app.Services
                 Quantity = 1
             });*/
 
-            var ordersToSync = GetOrdersToSync(projackDbOrders, recentApiOrders, lomagTowars);
+            var ordersToSync = GetOrdersToSync(recentApiOrders, lomagTowars);
             logger.LogInformation($"Liczba wydań towarów do synchronizacji: {ordersToSync.Count()}");
 
             if (!ordersToSync.Any())
@@ -74,7 +72,7 @@ namespace react_app.Services
             return addedOrders.Count();
         }
 
-        private IList<Order> GetOrdersToSync(IEnumerable<Order> existingOrders, IEnumerable<OrderDto> recentApiOrders, IEnumerable<Towar> lomagTowars)
+        private IList<Order> GetOrdersToSync(IEnumerable<OrderDto> recentApiOrders, IEnumerable<Towar> lomagTowars)
         {
             var ordersToSync = new List<Order>();
 
