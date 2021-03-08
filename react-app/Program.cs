@@ -1,32 +1,24 @@
-using System;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Sinks.MSSqlServer;
 
 namespace react_app
 {
     public class Program
     {
+        private static string _wmProjackCs;
+
         public static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .CreateBootstrapLogger();
+            var config = new ConfigurationBuilder()
+               .AddJsonFile("appsettings.json", optional: false)
+               .Build();
 
-            try
-            {
-                Log.Information("Starting up");
-                CreateHostBuilder(args).Build().Run();
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex, "Application start-up failed");
-            }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
+            _wmProjackCs = config.GetConnectionString("wmprojack");
+
+            CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -35,7 +27,11 @@ namespace react_app
                     .ReadFrom.Configuration(context.Configuration)
                     .ReadFrom.Services(services)
                     .Enrich.FromLogContext()
-                    .WriteTo.Console())
+                    .WriteTo.Console()
+                    .WriteTo.MSSqlServer(
+                        connectionString: _wmProjackCs,
+                        sinkOptions: new MSSqlServerSinkOptions { TableName = "LogEvents", AutoCreateSqlTable = true })
+                    )
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
