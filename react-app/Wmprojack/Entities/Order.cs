@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace react_app.Wmprojack.Entities
 {
+
     public class Order
     {
         public string Id { get; set; }

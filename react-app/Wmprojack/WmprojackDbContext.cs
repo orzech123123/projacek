@@ -12,9 +12,12 @@ namespace react_app.Wmprojack
         }
 
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Log>().HasNoKey().ToView(null);
+
             modelBuilder.Entity<Order>()
                 .Property(p => p.Id)
                 .ValueGeneratedOnAdd();

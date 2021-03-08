@@ -31,14 +31,17 @@ export class NavMenu extends Component {
       <header>
         <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
                 <Container>
-                    <a href={"/"} className="navbar-brand"><img style={{ width: 200 + "px" }} src="/logo.jpg" /></a>{/*
-                    <NavbarBrand tag={Link} to="/"><img style={{ width: 200 + "px" }} src="/logo.jpg" /></NavbarBrand>*/}
+                   {
+                    <NavbarBrand tag={Link} to="/"><img style={{ width: 200 + "px" }} src="/logo.jpg" /></NavbarBrand>}
             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
               <ul className="navbar-nav flex-grow">
-                            {/*<NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/">Wydania</NavLink>
-                </NavItem>*/}
+                    {<NavItem>
+                        <NavLink tag={Link} className="text-dark" to="/orders-list">Wydania</NavLink>
+                    </NavItem>}
+                    {<NavItem>
+                        <NavLink tag={Link} className="text-dark" to="/logs-list">Logi</NavLink>
+                    </NavItem>}
                 <NavItem>
                     <a href={"https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=" + this.state.allegroSettings.clientId + "&redirect_uri=" + this.state.allegroSettings.returnUrl } className="text-dark nav-link">Zaloguj do Allegro</a>
                 </NavItem>
