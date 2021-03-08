@@ -40,6 +40,8 @@ namespace react_app.BackgroundTasks
 
             using (var scope = serviceProvider.CreateScope())
             {
+                _logger.LogInformation($"Synchronizacja wydań rozpoczęta");
+
                 var orderService = scope.ServiceProvider.GetService<OrderService>();
                 var syncCount = await orderService.SyncOrdersAsync();
 

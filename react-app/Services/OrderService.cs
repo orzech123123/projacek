@@ -59,69 +59,84 @@ namespace react_app.Services
             });*/
 
             var ordersToSync = GetOrdersToSync(projackDbOrders, recentApiOrders, lomagTowars);
+            logger.LogInformation($"Liczba wydań towarów do synchronizacji: {ordersToSync.Count()}");
 
             if (!ordersToSync.Any())
             {
                 return 0;
             }
 
-            AddOrdersToDbs(ordersToSync, lomagTowars);
+            var addedOrders = AddOrdersToDbs(ordersToSync, lomagTowars).ToList();
 
             wmprojackDbContext.SaveChanges();
             lomagDbContext.SaveChanges();
 
-            return ordersToSync.Count();
+            return addedOrders.Count();
         }
 
         private IList<Order> GetOrdersToSync(IEnumerable<Order> existingOrders, IEnumerable<OrderDto> recentApiOrders, IEnumerable<Towar> lomagTowars)
         {
-            var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
             var ordersToSync = new List<Order>();
+
+            var syncedOrders = wmprojackDbContext.Orders.ToList();
+            var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
 
             var apiOrdersGroups = recentApiOrders
                 .Where(o => o.IsValid)
-                .GroupBy(o => new { o.ProviderOrderId, o.ProviderType });
+                .GroupBy(o => new { o.ProviderOrderId, o.ProviderType, o.Name, o.Date });
 
             foreach (var apiOrderGroup in apiOrdersGroups)
             {
-                var isDuplicate = existingOrders
-                    .Union(ordersToSync)
-                    .Any(o => o.ProviderOrderId == apiOrderGroup.Key.ProviderOrderId &&
-                              o.ProviderType == apiOrderGroup.Key.ProviderType);
-
-                if (isDuplicate)
+                var missingCodes = apiOrderGroup
+                    .SelectMany(g => GetCodes(g, lomagKodyKreskowe))
+                    .ToList();
+                var syncedOrdersGroup = syncedOrders
+                    .Where(o => o.ProviderOrderId == apiOrderGroup.Key.ProviderOrderId)
+                    .Where(o => o.ProviderType == apiOrderGroup.Key.ProviderType);
+                foreach(var syncedOrder in syncedOrdersGroup)
                 {
-                    continue;
+                    var firstCodeMatch = missingCodes.FirstOrDefault(c => c == syncedOrder.Code);
+                    if(firstCodeMatch != null)
+                    {
+                        missingCodes.Remove(firstCodeMatch);
+                    }
                 }
 
-                foreach (var apiOrder in apiOrderGroup)
+                foreach(var missingCode in missingCodes)
                 {
-                    var detectedCodes = apiOrder.Codes.Split(new[] { ' ' })
-                        .Where(strPart => lomagKodyKreskowe.Contains(strPart));
+                    var name = $"{lomagTowars.Single(t => t.KodKreskowy == missingCode).Nazwa} - {apiOrderGroup.Key.Name}";
 
-                    for (var i = 0; i < apiOrder.Quantity; i++)
+                    ordersToSync.Add(new Order
                     {
-                        foreach (var code in detectedCodes)
-                        {
-                            var name = $"{lomagTowars.Single(t => t.KodKreskowy == code).Nazwa} - {apiOrder.Name}";
-
-                            ordersToSync.Add(new Order
-                            {
-                                Code = code,
-                                Date = apiOrder.Date,
-                                Name = name,
-                                ProviderOrderId = apiOrder.ProviderOrderId,
-                                ProviderType = apiOrder.ProviderType
-                            });
-                        }
-                    }
+                        Code = missingCode,
+                        Date = apiOrderGroup.Key.Date,
+                        Name = name,
+                        ProviderOrderId = apiOrderGroup.Key.ProviderOrderId,
+                        ProviderType = apiOrderGroup.Key.ProviderType
+                    });
                 }
             }
 
             return ordersToSync;
         }
 
-        private void AddOrdersToDbs(IEnumerable<Order> ordersToSync, IEnumerable<Towar> lomagTowars)
+        private IEnumerable<string> GetCodes(OrderDto apiOrder, IEnumerable<string> lomagKodyKreskowe)
+        {
+            var codes = apiOrder.Codes
+                .Split(new[] { ' ' })
+                .Where(strPart => lomagKodyKreskowe.Contains(strPart))
+                .ToList();
+
+            var allCodes = new List<string>();
+
+            for(var i = 0; i < apiOrder.Quantity; i++){
+                allCodes.AddRange(codes);
+            }
+
+            return allCodes;
+        }
+
+        private IEnumerable<Order> AddOrdersToDbs(IEnumerable<Order> ordersToSync, IEnumerable<Towar> lomagTowars)
         {
             var allegroKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Allegro");
             var wmprojackKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Weronika Matecka PROJACK");
@@ -189,9 +204,10 @@ namespace react_app.Services
                 lomagDbContext.RuchyMagazynowe.Add(ruchMagazynowy);
                 lomagDbContext.ElementyRuchuMagazynowego.Add(wydanieElementRuchu);
                 lomagDbContext.ZaleznosciPZWZ.Add(zaleznoscPZWZ);
-            }
 
-            wmprojackDbContext.AddRange(ordersToSync);
+                wmprojackDbContext.Add(order);
+                yield return order;
+            }
         }
     }
 }
