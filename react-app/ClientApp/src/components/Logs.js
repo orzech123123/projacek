@@ -23,6 +23,10 @@ function LogsTable() {
                 accessor: "timeStamp"
             },
             {
+                Header: "Poziom",
+                accessor: "level"
+            },
+            {
                 Header: "Wiadomość",
                 accessor: "message"
             }

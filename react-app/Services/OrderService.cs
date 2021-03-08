@@ -182,6 +182,7 @@ namespace react_app.Services
                     .Where(e => e.Towar.IdTowaru == towar.IdTowaru)
                     .Where(e => e.RuchMagazynowy.RodzajRuchuMagazynowego.Nazwa == "Przyjęcie na magazyn")
                     .Where(e => e.Ilosc != null)
+                    .ToList()
                     .Where(e => e.Wydano == null || e.Ilosc - (e.Wydano ?? 0) > 0)
                     .OrderByDescending(e => e.Ilosc - (e.Wydano ?? 0))
                     .FirstOrDefault();
