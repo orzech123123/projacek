@@ -16,6 +16,8 @@ function OrdersTable() {
     const fetchIdRef = React.useRef(0);
     const sortIdRef = React.useRef(0);
 
+    const [filter, setFilter] = useState('');
+
     const columns = React.useMemo(
         () => [
             {
@@ -56,7 +58,7 @@ function OrdersTable() {
         []
     );
 
-    const fetchData = React.useCallback(({ pageSize, pageIndex, sortBy }) => {
+    const fetchData = React.useCallback(({ pageSize, pageIndex, sortBy, filter }) => {
         const fetchId = ++fetchIdRef.current;
 
         setLoading(true);
@@ -65,7 +67,7 @@ function OrdersTable() {
         var orderByParam = !orderBy || orderBy == "null" ? "" : "&orderBy=" + orderBy;
         var isDescending = sortBy.length > 0 ? sortBy[0].desc : true;
 
-        fetch('/orders?isDescending=' + isDescending + orderByParam + "&pageSize=" + pageSize + "&pageIndex=" + pageIndex)
+        fetch('/orders?isDescending=' + isDescending + orderByParam + "&pageSize=" + pageSize + "&pageIndex=" + pageIndex + "&filter=" + filter)
             .then(function (response) {
                 return response.json();
             })
@@ -81,12 +83,22 @@ function OrdersTable() {
     }, []);
 
     return (
-        <Table
-            columns={columns}
-            data={data}
-            fetchData={fetchData}
-            loading={loading}
-            pageCount={pageCount}
-        />
+        <div>
+            <input
+                type="text"
+                value={filter}
+                placeholder="Wyszukaj"
+                onChange={e => setFilter(e.target.value)}
+            />
+
+            <Table
+                columns={columns}
+                filter={filter}
+                data={data}
+                fetchData={fetchData}
+                loading={loading}
+                pageCount={pageCount}
+            />
+        </div>
     );
 }

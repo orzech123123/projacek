@@ -4,6 +4,7 @@ import { useTable, useSortBy, usePagination } from "react-table";
 import "../styles/Table.css";
 
 function Table({
+    filter,
     columns,
     data,
     onSort,
@@ -41,8 +42,8 @@ function Table({
     );
 
     useEffect(() => {
-        fetchData({ pageIndex, pageSize, sortBy });
-    }, [sortBy, fetchData, pageIndex, pageSize]);
+        fetchData({ pageIndex, pageSize, sortBy, filter });
+    }, [sortBy, fetchData, pageIndex, pageSize, filter]);
 
     return (
         <>
