@@ -88,10 +88,12 @@ namespace react_app.Services
                 var missingCodes = apiOrderGroup
                     .SelectMany(g => GetCodes(g, lomagKodyKreskowe))
                     .ToList();
-                var syncedOrdersGroup = syncedOrders
+
+                var syncedOrdersForOrderGroup = syncedOrders
                     .Where(o => o.ProviderOrderId == apiOrderGroup.Key.ProviderOrderId)
                     .Where(o => o.ProviderType == apiOrderGroup.Key.ProviderType);
-                foreach(var syncedOrder in syncedOrdersGroup)
+
+                foreach(var syncedOrder in syncedOrdersForOrderGroup)
                 {
                     var firstCodeMatch = missingCodes.FirstOrDefault(c => c == syncedOrder.Code);
                     if(firstCodeMatch != null)
