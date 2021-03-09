@@ -4,8 +4,6 @@ using Quartz;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using react_app.Services;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace react_app.BackgroundTasks
@@ -15,18 +13,15 @@ namespace react_app.BackgroundTasks
     {
         private readonly ILogger<OrdersSyncBackgroundJob> _logger;
         private readonly IServiceProvider serviceProvider;
-        private readonly IWebHostEnvironment env;
         private readonly IOptions<Settings> settings;
 
         public OrdersSyncBackgroundJob(
             ILogger<OrdersSyncBackgroundJob> logger,
             IServiceProvider serviceProvider,
-            IWebHostEnvironment env,
             IOptions<Settings> settings)
         {
             _logger = logger;
             this.serviceProvider = serviceProvider;
-            this.env = env;
             this.settings = settings;
         }
 

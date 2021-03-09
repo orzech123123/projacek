@@ -61,6 +61,7 @@ namespace react_app
             services.AddTransient<IOrderProvider, AllegroOrderProvider>();
             services.AddTransient<IOrderProvider, ApaczkaOrderProvider>();
             services.AddTransient<OrderService>();
+            services.AddTransient<LomagService>();
 
             services.AddSingleton<IJobFactory, SingletonJobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();

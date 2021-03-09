@@ -14,25 +14,28 @@ namespace react_app.Services
     public class OrderService
     {
         private readonly IEnumerable<IOrderProvider> orderProviders;
-        private readonly LomagDbContext lomagDbContext;
         private readonly WmprojackDbContext wmprojackDbContext;
+        private readonly LomagDbContext lomagDbContext;
         private readonly ILogger<OrderService> logger;
+        private readonly LomagService lomagService;
 
         public OrderService(
             IEnumerable<IOrderProvider> orderProviders,
-            LomagDbContext lomagDbContext,
             WmprojackDbContext wmprojackDbContext,
-            ILogger<OrderService> logger)
+            LomagDbContext lomagDbContext,
+            ILogger<OrderService> logger,
+            LomagService lomagService)
         {
             this.orderProviders = orderProviders;
-            this.lomagDbContext = lomagDbContext;
             this.wmprojackDbContext = wmprojackDbContext;
+            this.lomagDbContext = lomagDbContext;
             this.logger = logger;
+            this.lomagService = lomagService;
         }
 
         public async Task<int> SyncOrdersAsync()
         {
-            var lomagTowars = await lomagDbContext.Towary.ToListAsync();
+            var lomagTowars = await lomagService.GetTowary();
             var recentApiOrders = orderProviders.SelectMany(p => p.GetOrders()).ToList();
 
             //TODO remove / tests
@@ -138,11 +141,11 @@ namespace react_app.Services
 
         private IEnumerable<Order> AddOrdersToDbs(IEnumerable<Order> ordersToSync, IEnumerable<Towar> lomagTowars)
         {
-            var allegroKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Allegro");
-            var wmprojackKontrahent = lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Weronika Matecka PROJACK");
-            var wmprojackMagazyn = lomagDbContext.Magazyny.Single(k => k.Nazwa == "PROJACK");
-            var wydanieRodzajRuchu = lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
-            var user = lomagDbContext.Uzytkownicy.First();
+            var allegroKontrahent = lomagService.GetAllegroKontrahent();
+            var wmprojackKontrahent = lomagService.GetWmProjackKontrahent();
+            var wmprojackMagazyn = lomagService.GetProjackMagazyn();
+            var wydanieRodzajRuchu = lomagService.GetWydanieZMagazynuRuch();
+            var user = lomagService.GetUzytkownik();
 
             foreach (var order in ordersToSync)
             {
@@ -164,7 +167,12 @@ namespace react_app.Services
 
                 var towar = lomagTowars.Single(t => t.KodKreskowy == order.Code);
 
-                var uwagi = order.GetUrl();
+                var przyjecieElementRuchu = lomagService.GetWolnePrzyjecia(towar)[towar.IdTowaru]?.FirstOrDefault();
+                if (przyjecieElementRuchu == null)
+                {
+                    logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}. Zamówienie: {order.GetUrl()}");
+                    continue;
+                }
 
                 var wydanieElementRuchu = new ElementRuchuMagazynowego
                 {
@@ -175,23 +183,8 @@ namespace react_app.Services
                     Utworzono = date,
                     Zmodyfikowano = date,
                     Uzytkownik = user,
-                    Uwagi = uwagi
+                    Uwagi = order.GetUrl()
                 };
-
-                var przyjecieElementRuchu = lomagDbContext.ElementyRuchuMagazynowego
-                    .Where(e => e.Towar.IdTowaru == towar.IdTowaru)
-                    .Where(e => e.RuchMagazynowy.RodzajRuchuMagazynowego.Nazwa == "Przyjęcie na magazyn")
-                    .Where(e => e.Ilosc != null)
-                    .ToList()
-                    .Where(e => e.Wydano == null || e.Ilosc - (e.Wydano ?? 0) > 0)
-                    .OrderByDescending(e => e.Ilosc - (e.Wydano ?? 0))
-                    .FirstOrDefault();
-
-                if(przyjecieElementRuchu == null)
-                {
-                    logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}. Zamówienie: {order.GetUrl()}");
-                    continue;
-                }
 
                 przyjecieElementRuchu.Wydano = przyjecieElementRuchu.Wydano != null ? przyjecieElementRuchu.Wydano + 1 : 1;
 
