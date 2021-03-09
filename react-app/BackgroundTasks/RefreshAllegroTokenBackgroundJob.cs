@@ -13,15 +13,15 @@ using System.IO;
 namespace react_app.BackgroundTasks
 {
     [DisallowConcurrentExecution]
-    public class RefreshAllegrroTokenBackgroundJob : IJob
+    public class RefreshAllegroTokenBackgroundJob : IJob
     {
-        private readonly ILogger<RefreshAllegrroTokenBackgroundJob> _logger;
+        private readonly ILogger<RefreshAllegroTokenBackgroundJob> _logger;
         private readonly IServiceProvider serviceProvider;
         private readonly IOptions<AllegroSettings> allegroSettings;
         private readonly IWebHostEnvironment env;
 
-        public RefreshAllegrroTokenBackgroundJob(
-            ILogger<RefreshAllegrroTokenBackgroundJob> logger,
+        public RefreshAllegroTokenBackgroundJob(
+            ILogger<RefreshAllegroTokenBackgroundJob> logger,
             IServiceProvider serviceProvider,
             IOptions<AllegroSettings> allegroSettings,
             IWebHostEnvironment env)

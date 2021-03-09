@@ -41,7 +41,7 @@ namespace react_app.Controllers
         }
 
         private IQueryable<Log> Logs => wmprojackDbContext.Logs.FromSqlRaw(@"
-                SELECT TOP (1000) [Id] ,[Message], [Timestamp], [Properties], [Level]
+                SELECT [Id] ,[Message], [Timestamp], [Properties], [Level]
                 FROM [WmProJack].[dbo].[LogEvents]
                 order by [TimeStamp] desc")
             .Where(l => l.Properties.Contains("react_app") || new[] { "Warning", "Error" , "Fatal" }.Contains(l.Level));

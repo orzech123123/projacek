@@ -69,12 +69,17 @@ namespace react_app
             services.AddTransient<OrdersSyncBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(OrdersSyncBackgroundJob),
-                cronExpression: "0/30 * * * * ?"));
+                cronExpression: "0 0/1 * * * ?"));
 
-            services.AddTransient<RefreshAllegrroTokenBackgroundJob>();
+            services.AddTransient<RefreshAllegroTokenBackgroundJob>();
             services.AddSingleton(new JobSchedule(
-                jobType: typeof(RefreshAllegrroTokenBackgroundJob),
-                cronExpression: "0/45 * * * * ?")); 
+                jobType: typeof(RefreshAllegroTokenBackgroundJob),
+                cronExpression: "0 0/15 * * * ?"));
+
+            services.AddTransient<TruncateLogsBackgroundJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(TruncateLogsBackgroundJob),
+                cronExpression: "0 0/30 * * * ?"));
         }
 
 
