@@ -14,14 +14,19 @@ namespace react_app.BackgroundTasks
     {
         private readonly ILogger<EmailStanyMinimalneBackgroundJob> _logger;
         private readonly IServiceProvider serviceProvider;
+        private readonly IOptions<Settings> settings;
+        private readonly EmailService emailService;
 
         public EmailStanyMinimalneBackgroundJob(
             ILogger<EmailStanyMinimalneBackgroundJob> logger,
             IServiceProvider serviceProvider,
-            IOptions<Settings> settings)
+            IOptions<Settings> settings,
+            EmailService emailService)
         {
             _logger = logger;
             this.serviceProvider = serviceProvider;
+            this.settings = settings;
+            this.emailService = emailService;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -37,12 +42,23 @@ namespace react_app.BackgroundTasks
                     .Select(t => new
                     {
                         t.StanMinimalny,
+                        t.Nazwa,
                         t.KodKreskowy,
                         Stan = stany[t.IdTowaru] != null ?
                             stany[t.IdTowaru].Sum(st => st.Ilosc - (st.Wydano ?? 0)) :
                             0
                     })
-                    .Where(t => t.Stan < t.StanMinimalny);
+                    .Where(t => t.Stan < t.StanMinimalny)
+                    .OrderBy(t => t.StanMinimalny);
+
+                var przekroczoneStanyMinStr = string.Join("<br /><br />", przekroczoneStanyMin
+                    .Select(s => $"{s.Nazwa} - {s.KodKreskowy} - stan: {s.Stan} - stan min. - {s.StanMinimalny}"));
+
+                var emails = settings.Value.EmailsToSend.Split(' ');
+                foreach (var email in emails)
+                {
+                    await emailService.SendEmailAsync(email, "PROJACK - Informacja o niskich stanach magazynowych", przekroczoneStanyMinStr);
+                }
 
                 _logger.LogInformation($"Emaile o stanach minimalnych zostały wysłane");
             }

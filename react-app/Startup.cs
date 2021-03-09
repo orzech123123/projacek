@@ -45,6 +45,7 @@ namespace react_app
             services.Configure<ApaczkaSettings>(Configuration.GetSection("apaczka"));
             services.Configure<AllegroSettings>(Configuration.GetSection("allegro"));
             services.Configure<Settings>(Configuration.GetSection("settings"));
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
 
             var lomagSettings = new LomagSettings();
             Configuration.GetSection("lomag").Bind(lomagSettings);
@@ -62,6 +63,7 @@ namespace react_app
             services.AddTransient<IOrderProvider, ApaczkaOrderProvider>();
             services.AddTransient<OrderService>();
             services.AddTransient<LomagService>();
+            services.AddTransient<EmailService>();
 
             services.AddSingleton<IJobFactory, SingletonJobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
