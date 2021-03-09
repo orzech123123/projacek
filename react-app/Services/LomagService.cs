@@ -27,7 +27,7 @@ namespace react_app.Services
         public RodzajRuchuMagazynowego GetWydanieZMagazynuRuch() =>  lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
         public Uzytkownik GetUzytkownik() => lomagDbContext.Uzytkownicy.First();
 
-        public ILookup<int, ElementRuchuMagazynowego> GetWolnePrzyjecia(Towar? towar)
+        public ILookup<int, ElementRuchuMagazynowego> GetWolnePrzyjecia(Towar? towar = null)
         {
             return lomagDbContext.ElementyRuchuMagazynowego
                 .Include(e => e.Towar)

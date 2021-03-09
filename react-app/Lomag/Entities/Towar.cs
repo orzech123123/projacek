@@ -10,5 +10,6 @@ namespace react_app.Lomag.Entities
         public int IdTowaru { get; set; }
         public string Nazwa { get; set; }
         public string KodKreskowy { get; set; }
+        public decimal StanMinimalny { get; set; }
     }
 }
