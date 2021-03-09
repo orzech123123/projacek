@@ -82,12 +82,12 @@ namespace react_app
             services.AddTransient<TruncateLogsBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(TruncateLogsBackgroundJob),
-                cronExpression: "0 0/30 * * * ?"));
+                cronExpression: "0 0 0/23 * * ?"));
 
             services.AddTransient<EmailStanyMinimalneBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(EmailStanyMinimalneBackgroundJob),
-                cronExpression: "0 0/1 * * * ?"));
+                cronExpression: "0 0 0/23 * * ?"));
         }
 
 
