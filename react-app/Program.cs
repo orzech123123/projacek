@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using react_app.Configuration;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
 

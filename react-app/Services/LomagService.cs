@@ -24,7 +24,7 @@ namespace react_app.Services
         public Kontrahent GetAllegroKontrahent() => lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Allegro");
         public Kontrahent GetWmProjackKontrahent() => lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Weronika Matecka PROJACK");
         public Magazyn GetProjackMagazyn() => lomagDbContext.Magazyny.Single(k => k.Nazwa == "PROJACK");
-        public RodzajRuchuMagazynowego GetWydanieZMagazynuRuch() =>  lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
+        public RodzajRuchuMagazynowego GetWydanieZMagazynuRodzajRuchu() =>  lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
         public Uzytkownik GetUzytkownik() => lomagDbContext.Uzytkownicy.First();
 
         public ILookup<int, ElementRuchuMagazynowego> GetWolnePrzyjecia(Towar? towar = null)

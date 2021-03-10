@@ -1,4 +1,4 @@
-﻿namespace react_app
+﻿namespace react_app.Configuration
 {
     public class EmailSettings
     {

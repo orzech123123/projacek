@@ -17,7 +17,7 @@ using react_app.Services;
 using react_app.Wmprojack;
 using Serilog;
 
-namespace react_app
+namespace react_app.Configuration
 {
     public class Startup
     {
@@ -84,9 +84,9 @@ namespace react_app
                 jobType: typeof(TruncateLogsBackgroundJob),
                 cronExpression: "0 0 0/23 * * ?"));
 
-            services.AddTransient<EmailStanyMinimalneBackgroundJob>();
+            services.AddTransient<EmailMinimumInventoryBackgroundJob>();
             services.AddSingleton(new JobSchedule(
-                jobType: typeof(EmailStanyMinimalneBackgroundJob),
+                jobType: typeof(EmailMinimumInventoryBackgroundJob),
                 cronExpression: "0 0 0/23 * * ?"));
         }
 

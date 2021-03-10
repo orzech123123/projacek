@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using react_app.Allegro;
+using react_app.Configuration;
+using react_app.Services;
 using react_app.Wmprojack.Entities;
 using RestSharp;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace react_app.Services
+namespace react_app.Allegro
 {
     public class AllegroOrderProvider : IOrderProvider
     {
@@ -34,15 +35,15 @@ namespace react_app.Services
 
             var token = File.ReadAllText(Path.Combine(env.ContentRootPath, "token"));
 
-            var client2 = new RestClient("https://api.allegro.pl");
-            var request2 = new RestRequest($"/order/checkout-forms", Method.GET);
-            request2.AddHeader("Authorization", $"Bearer {token}");
-            request2.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
-            request2.AddParameter("limit", "25");
-            request2.AddParameter("fulfillment.status", "SENT");
-            request2.AddParameter("updatedAt.gte", settings.Value.StartOrdersSyncFrom.AddHours(-1).ToString("yyyy-MM-ddTHH:mm:ssZ"));
+            var client = new RestClient("https://api.allegro.pl");
+            var request = new RestRequest($"/order/checkout-forms", Method.GET);
+            request.AddHeader("Authorization", $"Bearer {token}");
+            request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
+            request.AddParameter("limit", "25");
+            request.AddParameter("fulfillment.status", "SENT");
+            request.AddParameter("updatedAt.gte", settings.Value.StartOrdersSyncFrom.AddHours(-1).ToString("yyyy-MM-ddTHH:mm:ssZ"));
 
-            var response = client2.Execute<AllegroCheckoutFormsResponse>(request2).Data;
+            var response = client.Execute<AllegroCheckoutFormsResponse>(request).Data;
 
             var offers = response.CheckoutForms.SelectMany(f => f.LineItems.Select(li => new
             {
@@ -54,10 +55,10 @@ namespace react_app.Services
 
             foreach (var offer in offers)
             {
-                var request3 = new RestRequest($"sale/offers/{offer.OfferId}", Method.GET);
-                request3.AddHeader("Authorization", $"Bearer {token}");
-                request3.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
-                var saleOffer = client2.Execute<AllegroSaleOffer>(request3).Data;
+                request = new RestRequest($"sale/offers/{offer.OfferId}", Method.GET);
+                request.AddHeader("Authorization", $"Bearer {token}");
+                request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
+                var saleOffer = client.Execute<AllegroSaleOffer>(request).Data;
 
                 yield return new OrderDto
                 {

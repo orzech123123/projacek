@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using react_app.Services;
 using Microsoft.Extensions.Options;
+using react_app.Configuration;
 
 namespace react_app.BackgroundTasks
 {

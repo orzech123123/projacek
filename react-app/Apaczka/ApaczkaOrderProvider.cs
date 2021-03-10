@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using react_app.Apaczka;
+using react_app.Configuration;
+using react_app.Services;
 using react_app.Wmprojack.Entities;
 using RestSharp;
 using System;
@@ -9,7 +10,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace react_app.Services
+namespace react_app.Apaczka
 {
     public class ApaczkaOrderProvider : IOrderProvider
     {

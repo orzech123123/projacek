@@ -6,19 +6,20 @@ using System;
 using react_app.Services;
 using Microsoft.Extensions.Options;
 using System.Linq;
+using react_app.Configuration;
 
 namespace react_app.BackgroundTasks
 {
     [DisallowConcurrentExecution]
-    public class EmailStanyMinimalneBackgroundJob : IJob
+    public class EmailMinimumInventoryBackgroundJob : IJob
     {
-        private readonly ILogger<EmailStanyMinimalneBackgroundJob> _logger;
+        private readonly ILogger<EmailMinimumInventoryBackgroundJob> _logger;
         private readonly IServiceProvider serviceProvider;
         private readonly IOptions<Settings> settings;
         private readonly EmailService emailService;
 
-        public EmailStanyMinimalneBackgroundJob(
-            ILogger<EmailStanyMinimalneBackgroundJob> logger,
+        public EmailMinimumInventoryBackgroundJob(
+            ILogger<EmailMinimumInventoryBackgroundJob> logger,
             IServiceProvider serviceProvider,
             IOptions<Settings> settings,
             EmailService emailService)

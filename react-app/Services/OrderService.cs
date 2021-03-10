@@ -70,7 +70,7 @@ namespace react_app.Services
             var addedOrders = AddOrdersToDbs(ordersToSync, lomagTowars).ToList();
 
             wmprojackDbContext.SaveChanges();
-            lomagDbContext.SaveChanges();
+            //lomagDbContext.SaveChanges();
 
             return addedOrders.Count();
         }
@@ -144,7 +144,7 @@ namespace react_app.Services
             var allegroKontrahent = lomagService.GetAllegroKontrahent();
             var wmprojackKontrahent = lomagService.GetWmProjackKontrahent();
             var wmprojackMagazyn = lomagService.GetProjackMagazyn();
-            var wydanieRodzajRuchu = lomagService.GetWydanieZMagazynuRuch();
+            var wydanieRodzajRuchu = lomagService.GetWydanieZMagazynuRodzajRuchu();
             var user = lomagService.GetUzytkownik();
 
             foreach (var order in ordersToSync)
