@@ -1,6 +1,9 @@
 import React, { Component, useState } from 'react';
-
+import moment from 'moment'
+import 'moment/locale/pl'
 import Table from "./Table"
+
+moment.locale("pl")
 
 export class Orders extends Component {
 
@@ -34,7 +37,11 @@ function OrdersTable() {
             },
             {
                 Header: "Data",
-                accessor: "date"
+                accessor: d => {
+                    return moment(d.date)
+                        .local()
+                        .format("DD MMM yyyy HH:mm:ss")
+                }
             },
             {
                 Header: 'Akcje',
