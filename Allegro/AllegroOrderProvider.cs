@@ -39,7 +39,7 @@ namespace react_app.Allegro
             var request = new RestRequest($"/order/checkout-forms", Method.GET);
             request.AddHeader("Authorization", $"Bearer {token}");
             request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
-            request.AddParameter("limit", "25");
+            //request.AddParameter("limit", "25");
             request.AddParameter("fulfillment.status", "SENT");
             request.AddParameter("updatedAt.gte", settings.Value.StartOrdersSyncFrom.AddHours(-1).ToString("yyyy-MM-ddTHH:mm:ssZ"));
 

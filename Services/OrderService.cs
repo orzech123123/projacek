@@ -125,9 +125,13 @@ namespace react_app.Services
 
         private IEnumerable<string> GetCodes(OrderDto apiOrder, IEnumerable<string> lomagKodyKreskowe)
         {
+            const int lomagCodeLength = 8;
+
             var codes = apiOrder.Codes
                 .Split(new[] { ' ' })
-                .Where(strPart => lomagKodyKreskowe.Contains(strPart))
+                .Where(strPart => lomagKodyKreskowe.Contains(strPart) ||
+                                  lomagKodyKreskowe.Contains(strPart.PadLeft(lomagCodeLength, '0')))
+                .Select(strPart => strPart.PadLeft(lomagCodeLength, '0'))
                 .ToList();
 
             var allCodes = new List<string>();
