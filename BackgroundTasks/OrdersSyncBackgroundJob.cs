@@ -28,9 +28,11 @@ namespace react_app.BackgroundTasks
 
         public async Task Execute(IJobExecutionContext context)
         {
-            if(DateTime.Now < settings.Value.StartOrdersSyncFrom)
+            var start = settings.Value.StartOrdersSyncFrom;
+
+            if (DateTime.Now < start)
             {
-                _logger.LogInformation($"Startuję dopiero {settings.Value.StartOrdersSyncFrom}");
+                _logger.LogInformation($"Startuję dopiero {start} (za {-(DateTime.Now-start).TotalHours}h)");
                 return;
             }
 
