@@ -36,6 +36,7 @@ function OrdersTable() {
                 accessor: "code"
             },
             {
+                id: "date",
                 Header: "Data",
                 accessor: d => {
                     return moment(d.date)
