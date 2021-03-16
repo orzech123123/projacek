@@ -70,7 +70,7 @@ namespace react_app.Services
             var addedOrders = AddOrdersToDbs(ordersToSync, lomagTowars).ToList();
 
             wmprojackDbContext.SaveChanges();
-            //lomagDbContext.SaveChanges();
+            lomagDbContext.SaveChanges();
 
             return addedOrders.Count();
         }
