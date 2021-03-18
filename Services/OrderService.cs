@@ -84,7 +84,7 @@ namespace react_app.Services
 
             var apiOrdersGroups = recentApiOrders
                 .Where(o => o.IsValid)
-                .GroupBy(o => new { o.ProviderOrderId, o.ProviderType, o.Name, o.Date });
+                .GroupBy(o => new { o.ProviderOrderId, o.ProviderType, o.Name });
 
             foreach (var apiOrderGroup in apiOrdersGroups)
             {
@@ -112,7 +112,7 @@ namespace react_app.Services
                     ordersToSync.Add(new Order
                     {
                         Code = missingCode,
-                        Date = apiOrderGroup.Key.Date,
+                        Date = DateTime.Now,//apiOrderGroup.Key.Date,
                         Name = name,
                         ProviderOrderId = apiOrderGroup.Key.ProviderOrderId,
                         ProviderType = apiOrderGroup.Key.ProviderType
@@ -159,7 +159,7 @@ namespace react_app.Services
                     Utworzono = date,
                     Zmodyfikowano = date,
                     Magazyn = wmprojackMagazyn,
-                    NrDokumentu = $"WZ/AUTO/{order.ProviderOrderId}",
+                    NrDokumentu = $"WZ/{order.ProviderOrderId}/{order.Code}",
                     RodzajRuchuMagazynowego = wydanieRodzajRuchu,
                     Uzytkownik = user,
                     Operator = -1

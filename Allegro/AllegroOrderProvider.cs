@@ -66,7 +66,7 @@ namespace react_app.Allegro
                     ProviderType = OrderProvider.Allegro,
                     Name = saleOffer.Name,
                     Codes = saleOffer.External?.Id,
-                    Date = offer.UpdatedAt.AddHours(1),
+                    //Date = offer.UpdatedAt.AddHours(1),
                     Quantity = offer.Quantity
                 };
             }

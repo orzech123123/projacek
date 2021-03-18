@@ -61,7 +61,7 @@ namespace react_app.Apaczka
                     ProviderType = OrderProvider.Apaczka,
                     Codes = o.Comment,
                     Name = o.Content,
-                    Date = o.Created,
+                    //Date = o.Created,
                     Quantity = 1
                 });
         }

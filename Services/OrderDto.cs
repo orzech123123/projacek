@@ -1,11 +1,10 @@
 ﻿using react_app.Wmprojack.Entities;
-using System;
 
 namespace react_app.Services
 {
     public class OrderDto
     {
-        public DateTime Date { get; set; }
+        //public DateTime Date { get; set; }
         public string ProviderOrderId { get; set; }
         public OrderProvider ProviderType { get; set; }
         public string Name { get; set; }
