@@ -141,6 +141,11 @@ namespace react_app.Services
 
         private IEnumerable<Order> AddOrdersToDbs(IEnumerable<Order> ordersToSync, IEnumerable<Towar> lomagTowars)
         {
+            if(AreAllBezWolnychPrzyjec(lomagTowars, ordersToSync))
+            {
+                yield break;
+            }
+
             var allegroKontrahent = lomagService.GetAllegroKontrahent();
             var wmprojackKontrahent = lomagService.GetWmProjackKontrahent();
             var wmprojackMagazyn = lomagService.GetProjackMagazyn();
@@ -170,7 +175,7 @@ namespace react_app.Services
                 var przyjecieElementRuchu = lomagService.GetWolnePrzyjecia(towar)[towar.IdTowaru]?.FirstOrDefault();
                 if (przyjecieElementRuchu == null)
                 {
-                    logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}. Zamówienie: {order.GetUrl()}");
+                    LogBrakStanu(towar, order);
                     continue;
                 }
 
@@ -202,6 +207,34 @@ namespace react_app.Services
                 wmprojackDbContext.Add(order);
                 yield return order;
             }
+        }
+
+        private bool AreAllBezWolnychPrzyjec(IEnumerable<Towar> lomagTowars, IEnumerable<Order> ordersToSync)
+        {
+            var przyjecia = lomagService.GetWolnePrzyjecia();
+            var areAllBezWolnychPrzyjec = true;
+
+            foreach(var order in ordersToSync)
+            {
+                var towar = lomagTowars.Single(t => t.KodKreskowy == order.Code);
+                var przyjecieElementRuchu = przyjecia[towar.IdTowaru]?.FirstOrDefault();
+
+                if (przyjecieElementRuchu == null)
+                {
+                    LogBrakStanu(towar, order);
+                }
+                else
+                {
+                    areAllBezWolnychPrzyjec = false;
+                }
+            }
+
+            return areAllBezWolnychPrzyjec;
+        }
+
+        private void LogBrakStanu(Towar towar, Order order)
+        {
+            logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}. Zamówienie: {order.GetUrl()}");
         }
     }
 }
