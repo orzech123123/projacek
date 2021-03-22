@@ -19,7 +19,7 @@ namespace react_app.Controllers
         }
 
         [HttpGet]
-        public object GetLogs(bool isDescending = true, string orderBy = nameof(Log.TimeStamp), int pageSize = 10, int pageIndex = 0, string filter = null)
+        public object GetLogs(bool isDescending = true, string orderBy = nameof(Log.Id), int pageSize = 10, int pageIndex = 0, string filter = null)
         {
             filter = filter ?? string.Empty;
 

@@ -24,7 +24,7 @@ function LogsTable() {
     const columns = React.useMemo(
         () => [
             {
-                id: "timeStamp",
+                id: "id",
                 Header: "Data",
                 accessor: d => {
                     return moment(d.timeStamp)

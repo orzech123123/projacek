@@ -30,7 +30,7 @@ namespace react_app.Allegro
             {
                 logger.LogError($"Problem z połączeniem do Allegro. Brak tokenu. Zaloguj się");
 
-                yield break;
+                return Enumerable.Empty<OrderDto>();
             }
 
             var token = File.ReadAllText(Path.Combine(env.ContentRootPath, "token"));
@@ -45,7 +45,7 @@ namespace react_app.Allegro
 
             var response = client.Execute<AllegroCheckoutFormsResponse>(request).Data;
 
-            var offers = response.CheckoutForms.SelectMany(f => f.LineItems.Select(li => new
+            var orders = response.CheckoutForms.SelectMany(f => f.LineItems.Select(li => new
             {
                 ProviderOrderId = f.Id,
                 f.UpdatedAt,
@@ -53,23 +53,29 @@ namespace react_app.Allegro
                 li.Quantity
             }));
 
-            foreach (var offer in offers)
+            if(!orders.Any())
             {
-                request = new RestRequest($"sale/offers/{offer.OfferId}", Method.GET);
-                request.AddHeader("Authorization", $"Bearer {token}");
-                request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
-                var saleOffer = client.Execute<AllegroSaleOffer>(request).Data;
-
-                yield return new OrderDto
-                {
-                    ProviderOrderId = offer.ProviderOrderId,
-                    ProviderType = OrderProvider.Allegro,
-                    Name = saleOffer.Name,
-                    Codes = saleOffer.External?.Id,
-                    //Date = offer.UpdatedAt.AddHours(1),
-                    Quantity = offer.Quantity
-                };
+                return Enumerable.Empty<OrderDto>();
             }
+
+            request = new RestRequest($"sale/offers", Method.GET);
+            request.AddHeader("Authorization", $"Bearer {token}");
+            request.AddParameter("limit", "1000");
+            request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
+
+            var offers = client.Execute<AllegroSaleOfferResponse>(request)
+                .Data.Offers
+                .ToDictionary(o => o.Id);
+
+            return orders.Select(order => new OrderDto
+            {
+                ProviderOrderId = order.ProviderOrderId,
+                ProviderType = OrderProvider.Allegro,
+                Name = offers[order.OfferId].Name,
+                Codes = offers[order.OfferId].External?.Id,
+                //Date = offer.UpdatedAt.AddHours(1),
+                Quantity = order.Quantity
+            });
         }
     }
 }

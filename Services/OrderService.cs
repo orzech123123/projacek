@@ -38,27 +38,6 @@ namespace react_app.Services
             var lomagTowars = await lomagService.GetTowary();
             var recentApiOrders = orderProviders.SelectMany(p => p.GetOrders()).ToList();
 
-            //TODO remove / tests
-            /*recentApiOrders.Clear();
-            recentApiOrders.Add(new OrderDto
-            {
-                Date = DateTime.Now,
-                Name = "produkt",
-                ProviderOrderId = "sztrytkod",
-                ProviderType = OrderProvider.Allegro,
-                Codes = "00000008",
-                Quantity = 1
-            });
-            /*recentApiOrders.Add(new Order
-            {
-                Date = DateTime.Now,
-                Name = "zamówienie z 4 w sumie sztukami",
-                ProviderOrderId = "96666666-apaczkowykodsztuczny",
-                ProviderType = OrderProvider.Apaczka,
-                Code = "00000006 00000053 xxxxxxx 00000072 00000053",
-                Quantity = 1
-            });*/
-
             var ordersToSync = GetOrdersToSync(recentApiOrders, lomagTowars);
             logger.LogInformation($"Liczba wydań towarów do synchronizacji: {ordersToSync.Count()}");
 
@@ -69,8 +48,11 @@ namespace react_app.Services
 
             var addedOrders = AddOrdersToDbs(ordersToSync, lomagTowars).ToList();
 
-            wmprojackDbContext.SaveChanges();
-            lomagDbContext.SaveChanges();
+            if(addedOrders.Any())
+            {
+                wmprojackDbContext.SaveChanges();
+                lomagDbContext.SaveChanges();
+            }
 
             return addedOrders.Count();
         }
@@ -214,6 +196,8 @@ namespace react_app.Services
             var przyjecia = lomagService.GetWolnePrzyjecia();
             var areAllBezWolnychPrzyjec = true;
 
+            var brakiToLog = new List<Action>();
+
             foreach(var order in ordersToSync)
             {
                 var towar = lomagTowars.Single(t => t.KodKreskowy == order.Code);
@@ -221,12 +205,17 @@ namespace react_app.Services
 
                 if (przyjecieElementRuchu == null)
                 {
-                    LogBrakStanu(towar, order);
+                    brakiToLog.Add(() => LogBrakStanu(towar, order));
                 }
                 else
                 {
                     areAllBezWolnychPrzyjec = false;
                 }
+            }
+
+            if(areAllBezWolnychPrzyjec)
+            {
+                brakiToLog.ForEach(b => b());
             }
 
             return areAllBezWolnychPrzyjec;

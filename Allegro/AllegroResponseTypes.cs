@@ -38,11 +38,16 @@ namespace react_app.Allegro
 
     }
 
+    public class AllegroSaleOfferResponse
+    {
+        public List<AllegroSaleOffer> Offers { get; set; }
+    }
+
     public class AllegroSaleOffer
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public AllegroSaleOfferExternal External { get; set; }
-
     }
 
     public class AllegroSaleOfferExternal
