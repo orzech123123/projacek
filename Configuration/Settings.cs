@@ -4,5 +4,6 @@
     {
         public System.DateTime StartOrdersSyncFrom { get; set; }
         public string EmailsToSend { get; set; }
+        public string StopSyncOrdersUrl { get; set; }
     }
 }

@@ -1,5 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using react_app.Configuration;
 using react_app.Lomag;
 using react_app.Lomag.Entities;
 using react_app.Wmprojack;
@@ -18,19 +23,22 @@ namespace react_app.Services
         private readonly LomagDbContext lomagDbContext;
         private readonly ILogger<OrderService> logger;
         private readonly LomagService lomagService;
+        private readonly IOptions<Settings> settings;
 
         public OrderService(
             IEnumerable<IOrderProvider> orderProviders,
             WmprojackDbContext wmprojackDbContext,
             LomagDbContext lomagDbContext,
             ILogger<OrderService> logger,
-            LomagService lomagService)
+            LomagService lomagService,
+            IOptions<Settings> settings)
         {
             this.orderProviders = orderProviders;
             this.wmprojackDbContext = wmprojackDbContext;
             this.lomagDbContext = lomagDbContext;
             this.logger = logger;
             this.lomagService = lomagService;
+            this.settings = settings;
         }
 
         public async Task<int> SyncOrdersAsync()
@@ -222,7 +230,7 @@ namespace react_app.Services
         private void LogBrakStanu(Towar towar, Order order)
         {
             logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}." +
-                $" Zamówienie: {GenerateUrl(order)}");
+                $" [Zamówienie: {GenerateUrl(order)}] [STOP: {settings.Value.StopSyncOrdersUrl}]");
         }
 
         private string GenerateUrl(Order order) => orderProviders.Single(p => p.Type == order.ProviderType).GenerateUrl(order.ProviderOrderId);

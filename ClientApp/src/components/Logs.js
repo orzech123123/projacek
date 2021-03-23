@@ -22,13 +22,13 @@ function MessageColumn({ value }) {
             let domain = document.domain;
             let link = event.target.getAttribute('href');
 
-            if (!link || !link.includes(/*domain*/'apaczka')) {
+            if (!link || !link.includes(domain)) {
                 return;
             }
 
             event.preventDefault();
 
-            fetch('/orders', {
+            fetch(link, {
                     method: 'POST'
                 })
                 .then(function (response) {
@@ -37,7 +37,7 @@ function MessageColumn({ value }) {
                 .then(data => {
                     console.log(data);
                     store.addNotification({
-                        title: "Wonderful!",
+                        title: "Komunikat z serwera",
                         message: data,
                         type: "success",
                         insert: "bottom",
