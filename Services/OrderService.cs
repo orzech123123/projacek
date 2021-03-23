@@ -170,7 +170,7 @@ namespace react_app.Services
                     Utworzono = date,
                     Zmodyfikowano = date,
                     Uzytkownik = user,
-                    Uwagi = order.GetUrl()
+                    Uwagi = GenerateUrl(order)
                 };
 
                 przyjecieElementRuchu.Wydano = przyjecieElementRuchu.Wydano != null ? przyjecieElementRuchu.Wydano + 1 : 1;
@@ -223,7 +223,10 @@ namespace react_app.Services
 
         private void LogBrakStanu(Towar towar, Order order)
         {
-            logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}. Zamówienie: {order.GetUrl()}");
+            logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}." +
+                $" Zamówienie: {GenerateUrl(order)}");
         }
+
+        private string GenerateUrl(Order order) => orderProviders.Single(p => p.Type == order.ProviderType).GenerateUrl(order.ProviderOrderId);
     }
 }

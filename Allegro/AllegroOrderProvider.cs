@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using react_app.Configuration;
 using react_app.Services;
-using react_app.Wmprojack.Entities;
 using RestSharp;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +21,13 @@ namespace react_app.Allegro
             this.env = env;
             this.settings = settings;
             this.logger = logger;
+        }
+
+        public OrderProvider Type => OrderProvider.Allegro;
+
+        public string GenerateUrl(string orderId)
+        {
+            return $"https://allegro.pl/moje-allegro/sprzedaz/zamowienia/{orderId}";
         }
 
         public IEnumerable<OrderDto> GetOrders()

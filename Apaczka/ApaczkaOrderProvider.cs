@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using react_app.Configuration;
 using react_app.Services;
-using react_app.Wmprojack.Entities;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -16,6 +15,8 @@ namespace react_app.Apaczka
     {
         private readonly IOptions<ApaczkaSettings> apaczkaSettings;
         private readonly IOptions<Settings> settings;
+
+        public OrderProvider Type => OrderProvider.Apaczka;
 
         public ApaczkaOrderProvider(IOptions<ApaczkaSettings> apaczkaSettings,
             IOptions<Settings> settings)
@@ -75,6 +76,11 @@ namespace react_app.Apaczka
                 var hash = hmac.ComputeHash(msg);
                 return BitConverter.ToString(hash).ToLower().Replace("-", string.Empty);
             }
+        }
+
+        public string GenerateUrl(string orderId)
+        {
+            return $"https://panel.apaczka.pl/zlecenia/{orderId}";
         }
     }
 }

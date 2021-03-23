@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using react_app.Extensions;
+using react_app.Services;
 using react_app.Wmprojack;
 using react_app.Wmprojack.Entities;
 
@@ -44,7 +45,7 @@ namespace react_app.Controllers
 
         private IQueryable<Order> Orders(string filter) {
             var isDate = DateTime.TryParse(filter, out DateTime date);
-            var isProviderType =  Enum.TryParse(filter, out OrderProvider providerType) && Enum.IsDefined(typeof(OrderProvider), filter);
+            var isProviderType = Enum.TryParse(filter, out OrderProvider providerType) && Enum.IsDefined(typeof(OrderProvider), filter);
 
             if(isDate)
             {
