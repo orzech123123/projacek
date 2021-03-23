@@ -123,8 +123,10 @@ namespace react_app.Services
 
         private IEnumerable<Order> AddOrdersToDbs(IEnumerable<Order> ordersToSync, IEnumerable<Towar> lomagTowars)
         {
-            if(AreAllBezWolnychPrzyjec(lomagTowars, ordersToSync))
+            var bezWolnychPrzyjec = GetBezWolnychPrzyjec(lomagTowars, ordersToSync);
+            if (bezWolnychPrzyjec.Count() == ordersToSync.Count())
             {
+                LogBrakStanu(lomagTowars, bezWolnychPrzyjec);
                 yield break;
             }
 
@@ -191,12 +193,10 @@ namespace react_app.Services
             }
         }
 
-        private bool AreAllBezWolnychPrzyjec(IEnumerable<Towar> lomagTowars, IEnumerable<Order> ordersToSync)
+
+        private IEnumerable<Order> GetBezWolnychPrzyjec(IEnumerable<Towar> lomagTowars, IEnumerable<Order> ordersToSync)
         {
             var przyjecia = lomagService.GetWolnePrzyjecia();
-            var areAllBezWolnychPrzyjec = true;
-
-            var brakiToLog = new List<Action>();
 
             foreach(var order in ordersToSync)
             {
@@ -205,20 +205,18 @@ namespace react_app.Services
 
                 if (przyjecieElementRuchu == null)
                 {
-                    brakiToLog.Add(() => LogBrakStanu(towar, order));
-                }
-                else
-                {
-                    areAllBezWolnychPrzyjec = false;
+                    yield return order;
                 }
             }
+        }
 
-            if(areAllBezWolnychPrzyjec)
+        private void LogBrakStanu(IEnumerable<Towar> lomagTowars, IEnumerable<Order> bezWolnychPrzyjec)
+        {
+            foreach (var order in bezWolnychPrzyjec)
             {
-                brakiToLog.ForEach(b => b());
+                var towar = lomagTowars.Single(t => t.KodKreskowy == order.Code);
+                LogBrakStanu(towar, order);
             }
-
-            return areAllBezWolnychPrzyjec;
         }
 
         private void LogBrakStanu(Towar towar, Order order)

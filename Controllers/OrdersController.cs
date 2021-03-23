@@ -19,6 +19,12 @@ namespace react_app.Controllers
             this.wmprojackDbContext = wmprojackDbContext;
         }
 
+        [HttpPost]
+        public string StopSync()
+        {
+            return DateTime.Now.ToString();
+        }
+
         [HttpGet]
         public object GetSyncs(bool isDescending = true, string orderBy = nameof(Order.Date), int pageSize = 10, int pageIndex = 0, string filter = null)
         {

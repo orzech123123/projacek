@@ -4,20 +4,52 @@ import moment from 'moment'
 import 'moment/locale/pl'
 import Table from "./Table"
 
+import { store } from 'react-notifications-component';
+
 moment.locale("pl")
 
 export class Logs extends Component {
-
-  render() {
-      return <LogsTable />
-  }
+    render() {
+        return <div>
+            <LogsTable />
+        </div>
+    }
 }
 
 function MessageColumn({ value }) {
     let linkProps = {
         onClick: (event) => {
-            console.log(event.target);
+            let domain = document.domain;
+            let link = event.target.getAttribute('href');
+
+            if (!link || !link.includes(/*domain*/'apaczka')) {
+                return;
+            }
+
             event.preventDefault();
+
+            fetch('/orders', {
+                    method: 'POST'
+                })
+                .then(function (response) {
+                    return response.text();
+                })
+                .then(data => {
+                    console.log(data);
+                    store.addNotification({
+                        title: "Wonderful!",
+                        message: data,
+                        type: "success",
+                        insert: "bottom",
+                        container: "bottom-right",
+                        animationIn: ["animate__animated", "animate__fadeIn"],
+                        animationOut: ["animate__animated", "animate__fadeOut"],
+                        dismiss: {
+                            duration: 3000,
+                            onScreen: true
+                        }
+                    });
+                });
         }
     };
 
