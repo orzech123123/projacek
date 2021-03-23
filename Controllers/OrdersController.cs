@@ -20,9 +20,29 @@ namespace react_app.Controllers
         }
 
         [HttpPost]
-        public string StopSync()
+        public string StopSync(string id, string code, OrderProviderType type)
         {
-            return DateTime.Now.ToString();
+            var isAlreadyIgnored = wmprojackDbContext.IgnoredOrder
+                .Where(o => o.Code == code)
+                .Where(o => o.ProviderOrderId == id)
+                .Any(o => o.ProviderType == type);
+
+            if(isAlreadyIgnored)
+            {
+                return "Zamówienie zostało już zastopowane";
+            }
+            else
+            {
+                wmprojackDbContext.IgnoredOrder.Add(new IgnoredOrder
+                {
+                    Code = code,
+                    ProviderType = type,
+                    ProviderOrderId = id
+                });
+                wmprojackDbContext.SaveChanges();
+
+                return "Zastopowano zamówienie";
+            }
         }
 
         [HttpGet]
@@ -51,7 +71,7 @@ namespace react_app.Controllers
 
         private IQueryable<Order> Orders(string filter) {
             var isDate = DateTime.TryParse(filter, out DateTime date);
-            var isProviderType = Enum.TryParse(filter, out OrderProvider providerType) && Enum.IsDefined(typeof(OrderProvider), filter);
+            var isProviderType = Enum.TryParse(filter, out OrderProviderType providerType) && Enum.IsDefined(typeof(OrderProviderType), filter);
 
             if(isDate)
             {

@@ -13,19 +13,28 @@ namespace react_app.Wmprojack
         }
 
         public DbSet<Order> Orders { get; set; }
+        public DbSet<IgnoredOrder> IgnoredOrder { get; set; }
         public DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            var converter = new EnumToStringConverter<OrderProviderType>();
+
             modelBuilder.Entity<Log>().HasNoKey().ToView(null);
 
             modelBuilder.Entity<Order>()
                 .Property(p => p.Id)
                 .ValueGeneratedOnAdd();
-
-            var converter = new EnumToStringConverter<OrderProvider>();
             modelBuilder
                 .Entity<Order>()
+                .Property(e => e.ProviderType)
+                .HasConversion(converter);
+
+            modelBuilder.Entity<IgnoredOrder>()
+                .Property(p => p.Id)
+                .ValueGeneratedOnAdd();
+            modelBuilder
+                .Entity<IgnoredOrder>()
                 .Property(e => e.ProviderType)
                 .HasConversion(converter);
         }

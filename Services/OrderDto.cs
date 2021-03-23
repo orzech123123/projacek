@@ -6,7 +6,7 @@ namespace react_app.Services
     {
         //public DateTime Date { get; set; }
         public string ProviderOrderId { get; set; }
-        public OrderProvider ProviderType { get; set; }
+        public OrderProviderType ProviderType { get; set; }
         public string Name { get; set; }
         public string Codes { get; set; }
 

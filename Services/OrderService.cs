@@ -66,7 +66,13 @@ namespace react_app.Services
         {
             var ordersToSync = new List<Order>();
 
-            var syncedOrders = wmprojackDbContext.Orders.ToList();
+            var alreadyProcessedOrders = wmprojackDbContext.Orders
+                .Select(o => new { o.ProviderOrderId, o.ProviderType, o.Code })
+                .ToList()
+                .Union(wmprojackDbContext.IgnoredOrder
+                .Select(o => new { o.ProviderOrderId, o.ProviderType, o.Code })
+                .ToList());
+
             var lomagKodyKreskowe = lomagTowars.Select(t => t.KodKreskowy);
 
             var apiOrdersGroups = recentApiOrders
@@ -79,13 +85,13 @@ namespace react_app.Services
                     .SelectMany(g => GetCodes(g, lomagKodyKreskowe))
                     .ToList();
 
-                var syncedOrdersForOrderGroup = syncedOrders
+                var alreadyProcessedOrdersGroup = alreadyProcessedOrders
                     .Where(o => o.ProviderOrderId == apiOrderGroup.Key.ProviderOrderId)
                     .Where(o => o.ProviderType == apiOrderGroup.Key.ProviderType);
 
-                foreach(var syncedOrder in syncedOrdersForOrderGroup)
+                foreach(var processedOrder in alreadyProcessedOrdersGroup)
                 {
-                    var firstCodeMatch = missingCodes.FirstOrDefault(c => c == syncedOrder.Code);
+                    var firstCodeMatch = missingCodes.FirstOrDefault(c => c == processedOrder.Code);
                     if(firstCodeMatch != null)
                     {
                         missingCodes.Remove(firstCodeMatch);
@@ -227,7 +233,7 @@ namespace react_app.Services
         private void LogBrakStanu(Towar towar, Order order)
         {
             logger.LogWarning($"Nie można zdjąć zerowego stanu towaru {towar.KodKreskowy}." +
-                $" [Zamówienie: {GenerateUrl(order)}] [STOP: {settings.Value.StopSyncOrdersUrl}]");
+                $" [Zamówienie: {GenerateUrl(order)}] [STOP: {settings.Value.StopSyncOrdersUrl}?id={order.ProviderOrderId}&code={order.Code}&type={order.ProviderType.ToString()}]");
         }
 
         private string GenerateUrl(Order order) => orderProviders.Single(p => p.Type == order.ProviderType).GenerateUrl(order.ProviderOrderId);

@@ -23,7 +23,7 @@ namespace react_app.Allegro
             this.logger = logger;
         }
 
-        public OrderProvider Type => OrderProvider.Allegro;
+        public OrderProviderType Type => OrderProviderType.Allegro;
 
         public string GenerateUrl(string orderId)
         {
@@ -76,7 +76,7 @@ namespace react_app.Allegro
             return orders.Select(order => new OrderDto
             {
                 ProviderOrderId = order.ProviderOrderId,
-                ProviderType = OrderProvider.Allegro,
+                ProviderType = OrderProviderType.Allegro,
                 Name = offers[order.OfferId].Name,
                 Codes = offers[order.OfferId].External?.Id,
                 //Date = offer.UpdatedAt.AddHours(1),

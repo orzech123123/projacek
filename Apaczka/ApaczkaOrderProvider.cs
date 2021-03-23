@@ -16,7 +16,7 @@ namespace react_app.Apaczka
         private readonly IOptions<ApaczkaSettings> apaczkaSettings;
         private readonly IOptions<Settings> settings;
 
-        public OrderProvider Type => OrderProvider.Apaczka;
+        public OrderProviderType Type => OrderProviderType.Apaczka;
 
         public ApaczkaOrderProvider(IOptions<ApaczkaSettings> apaczkaSettings,
             IOptions<Settings> settings)
@@ -59,7 +59,7 @@ namespace react_app.Apaczka
                 .Select(o => new OrderDto
                 {
                     ProviderOrderId = o.Id,
-                    ProviderType = OrderProvider.Apaczka,
+                    ProviderType = OrderProviderType.Apaczka,
                     Codes = o.Comment,
                     Name = o.Content,
                     //Date = o.Created,
