@@ -1,4 +1,5 @@
 import React, { Component, useState } from 'react';
+import Linkify from 'linkifyjs/react';
 import moment from 'moment'
 import 'moment/locale/pl'
 import Table from "./Table"
@@ -10,6 +11,17 @@ export class Logs extends Component {
   render() {
       return <LogsTable />
   }
+}
+
+function MessageColumn({ value }) {
+    let linkProps = {
+        onClick: (event) => {
+            console.log(event.target);
+            event.preventDefault();
+        }
+    };
+
+    return <Linkify options={{ attributes: linkProps }}>{value}</Linkify>
 }
 
 function LogsTable() {
@@ -38,7 +50,8 @@ function LogsTable() {
             },
             {
                 Header: "Wiadomość",
-                accessor: "message"
+                accessor: "message",
+                Cell: MessageColumn
             }
         ],
         []
