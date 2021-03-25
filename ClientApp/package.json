@@ -18,7 +18,8 @@
     "reactstrap": "^8.4.1",
     "rimraf": "^2.6.2",
     "linkifyjs": "2.1.9",
-    "react-notifications-component": "3.0.4"
+    "react-notifications-component": "3.0.4",
+    "use-throttle": "0.0.3"
   },
   "devDependencies": {
     "ajv": "^6.9.1",

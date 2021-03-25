@@ -1,10 +1,10 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import Linkify from 'linkifyjs/react';
 import moment from 'moment'
 import 'moment/locale/pl'
 import Table from "./Table"
-
 import { store } from 'react-notifications-component';
+import { useThrottle } from 'use-throttle';
 
 moment.locale("pl")
 
@@ -17,39 +17,50 @@ export class Logs extends Component {
 }
 
 function MessageColumn({ value }) {
+    const [link, setLink] = useState(null);
+    const linkThrottled = useThrottle(link, 1000);
+
+    useEffect(() => {
+        if (!linkThrottled) {
+            return;
+        }
+
+        fetch(linkThrottled, {
+                method: 'POST'
+            })
+            .then(function (response) {
+                return response.text();
+            })
+            .then(data => {
+                console.log(data);
+                store.addNotification({
+                    title: "Komunikat z serwera",
+                    message: data,
+                    type: "success",
+                    insert: "bottom",
+                    container: "bottom-right",
+                    animationIn: ["animate__animated", "animate__fadeIn"],
+                    animationOut: ["animate__animated", "animate__fadeOut"],
+                    dismiss: {
+                        duration: 3000,
+                        onScreen: true
+                    }
+                });
+            });
+    }, [linkThrottled]);
+
     let linkProps = {
         onClick: (event) => {
             let domain = document.domain;
-            let link = event.target.getAttribute('href');
+            let href = event.target.getAttribute('href');
 
-            if (!link || !link.includes(domain)) {
+            if (!href || !href.includes(domain)) {
                 return;
             }
 
             event.preventDefault();
 
-            fetch(link, {
-                    method: 'POST'
-                })
-                .then(function (response) {
-                    return response.text();
-                })
-                .then(data => {
-                    console.log(data);
-                    store.addNotification({
-                        title: "Komunikat z serwera",
-                        message: data,
-                        type: "success",
-                        insert: "bottom",
-                        container: "bottom-right",
-                        animationIn: ["animate__animated", "animate__fadeIn"],
-                        animationOut: ["animate__animated", "animate__fadeOut"],
-                        dismiss: {
-                            duration: 3000,
-                            onScreen: true
-                        }
-                    });
-                });
+            setLink(prevLink => prevLink == href ? prevLink + " " : href);
         }
     };
 
