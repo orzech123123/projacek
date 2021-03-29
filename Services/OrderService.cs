@@ -69,7 +69,7 @@ namespace react_app.Services
             var alreadyProcessedOrders = wmprojackDbContext.Orders
                 .Select(o => new { o.ProviderOrderId, o.ProviderType, o.Code })
                 .ToList()
-                .Union(wmprojackDbContext.IgnoredOrder
+                .Concat(wmprojackDbContext.IgnoredOrder
                 .Select(o => new { o.ProviderOrderId, o.ProviderType, o.Code })
                 .ToList());
 
