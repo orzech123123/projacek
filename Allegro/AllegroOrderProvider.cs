@@ -73,6 +73,8 @@ namespace react_app.Allegro
                 .Data.Offers
                 .ToDictionary(o => o.Id);
 
+            orders = orders.Where(order => offers.ContainsKey(order.OfferId));
+
             return orders.Select(order => new OrderDto
             {
                 ProviderOrderId = order.ProviderOrderId,
