@@ -38,14 +38,9 @@ namespace react_app.BackgroundTasks
 
                 var lomagKodyKreskowe = towary.Select(t => t.KodKreskowy);
 
-                foreach (var offer in offers)
-                {
-                    var codes = lomagService.ExtractCodes(offer.Value.External?.Id, lomagKodyKreskowe, 1);
-                    if(codes.Any())
-                    {
-
-                    }
-                }
+                var offersWithCodes = offers.ToDictionary(
+                    o => o.Key,
+                    o => lomagService.ExtractCodes(o.Value.External?.Id, lomagKodyKreskowe, 1));
 
                 _logger.LogInformation($"Aktywacja nieaktywnych ofert zakończona powidzeniem. Aktywowano ofert: {0}");
             }
