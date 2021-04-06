@@ -40,10 +40,10 @@ namespace react_app.Services
 
         public async Task<int> SyncOrdersAsync()
         {
-            var lomagTowars = await lomagService.GetTowary();
+            var towary = await lomagService.GetTowary();
             var recentApiOrders = orderProviders.SelectMany(p => p.GetOrders()).ToList();
 
-            var ordersToSync = GetOrdersToSync(recentApiOrders, lomagTowars);
+            var ordersToSync = GetOrdersToSync(recentApiOrders, towary);
             logger.LogInformation($"Liczba wydań towarów do synchronizacji: {ordersToSync.Count()}");
 
             if (!ordersToSync.Any())
@@ -51,7 +51,7 @@ namespace react_app.Services
                 return 0;
             }
 
-            var addedOrders = AddOrdersToDbs(ordersToSync, lomagTowars).ToList();
+            var addedOrders = AddOrdersToDbs(ordersToSync, towary).ToList();
 
             if(addedOrders.Any())
             {
@@ -82,7 +82,7 @@ namespace react_app.Services
             foreach (var apiOrderGroup in apiOrdersGroups)
             {
                 var missingCodes = apiOrderGroup
-                    .SelectMany(g => GetCodes(g, lomagKodyKreskowe))
+                    .SelectMany(g => lomagService.ExtractCodes(g.Codes, lomagKodyKreskowe, g.Quantity))
                     .ToList();
 
                 var alreadyProcessedOrdersGroup = alreadyProcessedOrders
@@ -114,22 +114,6 @@ namespace react_app.Services
             }
 
             return ordersToSync;
-        }
-
-        private IEnumerable<string> GetCodes(OrderDto apiOrder, IEnumerable<string> lomagKodyKreskowe)
-        {
-            var codes = apiOrder.Codes
-                .Split(new[] { ' ' })
-                .Where(strPart => lomagKodyKreskowe.Contains(strPart))
-                .ToList();
-
-            var allCodes = new List<string>();
-
-            for(var i = 0; i < apiOrder.Quantity; i++){
-                allCodes.AddRange(codes);
-            }
-
-            return allCodes;
         }
 
         private IEnumerable<Order> AddOrdersToDbs(IEnumerable<Order> ordersToSync, IEnumerable<Towar> lomagTowars)

@@ -59,6 +59,8 @@ namespace react_app.Configuration
                 options => options.EnableRetryOnFailure())
             );
 
+            services.AddTransient<AllegroOfferService>();
+            services.AddTransient<AllegroOrderService>();
             services.AddTransient<IOrderProvider, AllegroOrderProvider>();
             services.AddTransient<IOrderProvider, ApaczkaOrderProvider>();
             services.AddTransient<OrderService>();
@@ -88,6 +90,11 @@ namespace react_app.Configuration
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(EmailMinimumInventoryBackgroundJob),
                 cronExpression: "0 0 0/23 * * ?"));
+
+            services.AddTransient<ActivateInactiveAllegroOffersJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(ActivateInactiveAllegroOffersJob),
+                cronExpression: "0 0/1 * * * ?"));
         }
 
 

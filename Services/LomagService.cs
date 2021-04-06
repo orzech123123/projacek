@@ -42,5 +42,40 @@ namespace react_app.Services
                 .Where(e => e.TowarId.HasValue)
                 .ToLookup(e => e.TowarId.Value);
         }
+
+        public IDictionary<int, int> GetStany(Towar? towar = null)
+        {
+            var wolnePrzyjecia = GetWolnePrzyjecia(towar);
+
+            return wolnePrzyjecia
+                .Select(wp => new
+                {
+                    TowarId = wp.Key,
+                    Stan = (int)wp.Sum(st => st.Ilosc - (st.Wydano ?? 0))
+                })
+                .ToDictionary(s => s.TowarId, s => s.Stan);
+        }
+
+        public IEnumerable<string> ExtractCodes(string codes, IEnumerable<string> lomagKodyKreskowe, int quantity)
+        {
+            if(string.IsNullOrWhiteSpace(codes) || quantity < 1)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            var lomagCodes = codes
+                .Split(new[] { ' ' })
+                .Where(strPart => lomagKodyKreskowe.Contains(strPart))
+                .ToList();
+
+            var allCodes = new List<string>();
+
+            for (var i = 0; i < quantity; i++)
+            {
+                allCodes.AddRange(lomagCodes);
+            }
+
+            return allCodes;
+        }
     }
 }

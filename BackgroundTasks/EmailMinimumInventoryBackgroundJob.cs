@@ -36,7 +36,7 @@ namespace react_app.BackgroundTasks
             {
                 var lomagService = scope.ServiceProvider.GetService<LomagService>();
 
-                var stany = lomagService.GetWolnePrzyjecia();
+                var stany = lomagService.GetStany();
                 var towary = await lomagService.GetTowary();
 
                 var przekroczoneStanyMin = towary
@@ -45,9 +45,7 @@ namespace react_app.BackgroundTasks
                         t.StanMinimalny,
                         t.Nazwa,
                         t.KodKreskowy,
-                        Stan = stany[t.IdTowaru] != null ?
-                            stany[t.IdTowaru].Sum(st => st.Ilosc - (st.Wydano ?? 0)) :
-                            0
+                        Stan = stany.ContainsKey(t.IdTowaru) ? stany[t.IdTowaru] : 0
                     })
                     .Where(t => t.Stan < t.StanMinimalny)
                     .OrderBy(t => t.StanMinimalny);
