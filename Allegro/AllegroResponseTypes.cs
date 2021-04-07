@@ -47,7 +47,22 @@ namespace react_app.Allegro
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        public AllegroSaleOfferPublication Publication {get;set;}
         public AllegroSaleOfferExternal External { get; set; }
+    }
+
+    public class AllegroSaleOfferPublication
+{
+        public AllegroSaleOfferStatus Status { get; set; }
+
+    }
+
+    public enum AllegroSaleOfferStatus
+    {
+        Inactive,
+        Active,
+        Activating,
+        Ended
     }
 
     public class AllegroSaleOfferExternal

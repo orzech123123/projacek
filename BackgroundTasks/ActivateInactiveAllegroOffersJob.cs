@@ -6,6 +6,7 @@ using System;
 using react_app.Services;
 using react_app.Allegro;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace react_app.BackgroundTasks
 {
@@ -15,6 +16,8 @@ namespace react_app.BackgroundTasks
         private readonly ILogger<ActivateInactiveAllegroOffersJob> _logger;
         private readonly IServiceProvider serviceProvider;
         private readonly AllegroOfferService allegroOfferService;
+
+        private List<KeyValuePair<string, AllegroSaleOffer>> offersOnline;
 
         public ActivateInactiveAllegroOffersJob(
             ILogger<ActivateInactiveAllegroOffersJob> logger,
@@ -38,12 +41,36 @@ namespace react_app.BackgroundTasks
 
                 var lomagKodyKreskowe = towary.Select(t => t.KodKreskowy);
 
-                var offersWithCodes = offers.ToDictionary(
-                    o => o.Key,
-                    o => lomagService.ExtractCodes(o.Value.External?.Id, lomagKodyKreskowe, 1));
+                var offersWithCodes = offers
+                    .Where(o => lomagService.ExtractCodes(o.Value.External?.Id, lomagKodyKreskowe, 1).Any());
 
-                _logger.LogInformation($"Aktywacja nieaktywnych ofert zakończona powidzeniem. Aktywowano ofert: {0}");
+                offersOnline = offersWithCodes
+                    .Where(o => o.Value.Publication.Status != AllegroSaleOfferStatus.Ended)
+                    .ToList();
+
+                var offersToTryActivate = offersWithCodes
+                    .Where(o => o.Value.Publication.Status == AllegroSaleOfferStatus.Ended)
+                    .ToList();
+
+                var activatedOffersCount = offersToTryActivate.Sum(o => TryActivateOffer(o, stany) ? 1 : 0);
+
+                _logger.LogInformation($"Aktywacja nieaktywnych ofert zakończona powidzeniem. Aktywowano ofert: {activatedOffersCount}");
             }
+        }
+
+        private bool TryActivateOffer(
+            KeyValuePair<string, AllegroSaleOffer> offer,
+            IDictionary<int, int> stany)
+        {
+            var canActivate = true; //base on offersOnline and its codes and Stany
+
+            if(canActivate)
+            {
+                //TODO Activate via API
+                offersOnline = offersOnline.Concat(new[] { offer }).ToList();
+            }
+
+            return canActivate;
         }
     }
 }
