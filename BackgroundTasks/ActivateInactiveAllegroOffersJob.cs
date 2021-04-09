@@ -58,13 +58,19 @@ namespace react_app.BackgroundTasks
                     .Where(o => o.Status == AllegroSaleOfferStatus.Ended)
                     .ToList();
 
-                var activatedOffersCount = offersToTryActivate.Sum(o => TryActivateOffer(o, stany) ? 1 : 0);
+                var activatedOfferUrls = offersToTryActivate
+                    .Select(o => TryActivateOffer(o, stany))
+                    .Where(id => id != null)
+                    .Select(id => $"https://allegro.pl/oferta/{id}");
 
-                _logger.LogInformation($"Aktywacja nieaktywnych ofert zakończona powidzeniem. Aktywowano ofert: {activatedOffersCount}");
+                var activatedOfferUrlsJoined = activatedOfferUrls.Any() ? $"[{string.Join(", ", activatedOfferUrls)}]" : null;
+
+                _logger.LogInformation($"Aktywacja nieaktywnych ofert zakończona powodzeniem. " +
+                    $"Aktywowano ofert: {activatedOfferUrls.Count()}\n{activatedOfferUrlsJoined}");
             }
         }
 
-        private bool TryActivateOffer(
+        private string TryActivateOffer(
             (string OfferId, IEnumerable<string> Codes, AllegroSaleOfferStatus Status) offer,
             IDictionary<string, int> stany)
         {
@@ -76,7 +82,7 @@ namespace react_app.BackgroundTasks
                 offersOnline = offersOnline.Concat(new[] { offer });
             }
 
-            return canActivate;
+            return canActivate ? offer.OfferId : null;
         }
     }
 }
