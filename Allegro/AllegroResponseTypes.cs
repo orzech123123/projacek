@@ -49,6 +49,8 @@ namespace react_app.Allegro
         public string Name { get; set; }
         public AllegroSaleOfferPublication Publication {get;set;}
         public AllegroSaleOfferExternal External { get; set; }
+
+        public string Signature => External?.Id;
     }
 
     public class AllegroSaleOfferPublication

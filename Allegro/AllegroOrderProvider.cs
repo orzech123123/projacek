@@ -71,7 +71,7 @@ namespace react_app.Allegro
                 ProviderOrderId = order.ProviderOrderId,
                 ProviderType = OrderProviderType.Allegro,
                 Name = offers[order.OfferId].Name,
-                Codes = offers[order.OfferId].External?.Id,
+                Codes = offers[order.OfferId].Signature,
                 //Date = offer.UpdatedAt.AddHours(1),
                 Quantity = order.Quantity
             });

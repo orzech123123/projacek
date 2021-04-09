@@ -17,7 +17,7 @@ namespace react_app.BackgroundTasks
         private readonly IServiceProvider serviceProvider;
         private readonly AllegroOfferService allegroOfferService;
 
-        private List<KeyValuePair<string, AllegroSaleOffer>> offersOnline;
+        private IEnumerable<(string OfferId, IEnumerable<string> Codes, AllegroSaleOfferStatus Status)> offersOnline;
 
         public ActivateInactiveAllegroOffersJob(
             ILogger<ActivateInactiveAllegroOffersJob> logger,
@@ -42,14 +42,20 @@ namespace react_app.BackgroundTasks
                 var lomagKodyKreskowe = towary.Select(t => t.KodKreskowy);
 
                 var offersWithCodes = offers
-                    .Where(o => lomagService.ExtractCodes(o.Value.External?.Id, lomagKodyKreskowe, 1).Any());
+                    .Select(o => 
+                    (
+                        OfferId: o.Key,
+                        Codes: lomagService.ExtractCodes(o.Value.Signature, lomagKodyKreskowe, 1),
+                        o.Value.Publication.Status
+                    ))
+                    .Where(o => o.Codes.Any());
 
                 offersOnline = offersWithCodes
-                    .Where(o => o.Value.Publication.Status != AllegroSaleOfferStatus.Ended)
+                    .Where(o => o.Status != AllegroSaleOfferStatus.Ended)
                     .ToList();
 
                 var offersToTryActivate = offersWithCodes
-                    .Where(o => o.Value.Publication.Status == AllegroSaleOfferStatus.Ended)
+                    .Where(o => o.Status == AllegroSaleOfferStatus.Ended)
                     .ToList();
 
                 var activatedOffersCount = offersToTryActivate.Sum(o => TryActivateOffer(o, stany) ? 1 : 0);
@@ -59,7 +65,7 @@ namespace react_app.BackgroundTasks
         }
 
         private bool TryActivateOffer(
-            KeyValuePair<string, AllegroSaleOffer> offer,
+            (string OfferId, IEnumerable<string> Codes, AllegroSaleOfferStatus Status) offer,
             IDictionary<int, int> stany)
         {
             var canActivate = true; //base on offersOnline and its codes and Stany
@@ -67,7 +73,7 @@ namespace react_app.BackgroundTasks
             if(canActivate)
             {
                 //TODO Activate via API
-                offersOnline = offersOnline.Concat(new[] { offer }).ToList();
+                offersOnline = offersOnline.Concat(new[] { offer });
             }
 
             return canActivate;
