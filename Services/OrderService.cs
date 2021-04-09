@@ -151,7 +151,7 @@ namespace react_app.Services
 
                 var towar = towary.Single(t => t.KodKreskowy == order.Code);
 
-                var przyjecieElementRuchu = lomagService.GetWolnePrzyjecia(towar)[towar.IdTowaru]?.FirstOrDefault();
+                var przyjecieElementRuchu = lomagService.GetWolnePrzyjecia(t => t.TowarId, towar)[towar.IdTowaru]?.FirstOrDefault();
                 if (przyjecieElementRuchu == null)
                 {
                     LogBrakStanu(towar, order);
@@ -191,7 +191,7 @@ namespace react_app.Services
 
         private IEnumerable<Order> GetBezWolnychPrzyjec(IEnumerable<Towar> towary, IEnumerable<Order> ordersToSync)
         {
-            var przyjecia = lomagService.GetWolnePrzyjecia();
+            var przyjecia = lomagService.GetWolnePrzyjecia(t => t.TowarId);
 
             foreach(var order in ordersToSync)
             {

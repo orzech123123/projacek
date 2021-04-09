@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using react_app.Lomag;
 using react_app.Lomag.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace react_app.Services
         public RodzajRuchuMagazynowego GetWydanieZMagazynuRodzajRuchu() =>  lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
         public Uzytkownik GetUzytkownik() => lomagDbContext.Uzytkownicy.First();
 
-        public ILookup<int, ElementRuchuMagazynowego> GetWolnePrzyjecia(Towar? towar = null)
+        public ILookup<T, ElementRuchuMagazynowego> GetWolnePrzyjecia<T>(Func<ElementRuchuMagazynowego, T> byFunc, Towar? towar = null)
         {
             return lomagDbContext.ElementyRuchuMagazynowego
                 .Include(e => e.Towar)
@@ -39,21 +40,21 @@ namespace react_app.Services
                 .ToList()
                 .Where(e => e.Wydano == null || e.Ilosc - (e.Wydano ?? 0) > 0)
                 .OrderByDescending(e => e.Ilosc - (e.Wydano ?? 0))
-                .Where(e => e.TowarId.HasValue)
-                .ToLookup(e => e.TowarId.Value);
+                .Where(e => byFunc(e) != null)
+                .ToLookup(e => byFunc(e));
         }
 
-        public IDictionary<int, int> GetStany(Towar? towar = null)
+        public IDictionary<T, int> GetStany<T>(Func<ElementRuchuMagazynowego, T> byFunc, Towar? towar = null)
         {
-            var wolnePrzyjecia = GetWolnePrzyjecia(towar);
+            var wolnePrzyjecia = GetWolnePrzyjecia(byFunc, towar);
 
             return wolnePrzyjecia
                 .Select(wp => new
                 {
-                    TowarId = wp.Key,
+                    wp.Key,
                     Stan = (int)wp.Sum(st => st.Ilosc - (st.Wydano ?? 0))
                 })
-                .ToDictionary(s => s.TowarId, s => s.Stan);
+                .ToDictionary(s => s.Key, s => s.Stan);
         }
 
         public IEnumerable<string> ExtractCodes(string codes, IEnumerable<string> lomagKodyKreskowe, int quantity)

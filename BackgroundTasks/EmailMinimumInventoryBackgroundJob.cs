@@ -36,7 +36,7 @@ namespace react_app.BackgroundTasks
             {
                 var lomagService = scope.ServiceProvider.GetService<LomagService>();
 
-                var stany = lomagService.GetStany();
+                var stany = lomagService.GetStany(t => t.TowarId);
                 var towary = await lomagService.GetTowary();
 
                 var przekroczoneStanyMin = towary

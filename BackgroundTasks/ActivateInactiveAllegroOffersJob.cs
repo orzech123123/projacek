@@ -36,7 +36,7 @@ namespace react_app.BackgroundTasks
                 var lomagService = scope.ServiceProvider.GetService<LomagService>();
 
                 var towary = await lomagService.GetTowary();
-                var stany = lomagService.GetStany();
+                var stany = lomagService.GetStany(t => t.Towar.KodKreskowy);
                 var offers = allegroOfferService.GetAll();
 
                 var lomagKodyKreskowe = towary.Select(t => t.KodKreskowy);
@@ -66,7 +66,7 @@ namespace react_app.BackgroundTasks
 
         private bool TryActivateOffer(
             (string OfferId, IEnumerable<string> Codes, AllegroSaleOfferStatus Status) offer,
-            IDictionary<int, int> stany)
+            IDictionary<string, int> stany)
         {
             var canActivate = true; //base on offersOnline and its codes and Stany
 
