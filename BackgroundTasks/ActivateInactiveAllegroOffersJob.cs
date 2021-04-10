@@ -74,15 +74,40 @@ namespace react_app.BackgroundTasks
             (string OfferId, IEnumerable<string> Codes, AllegroSaleOfferStatus Status) offer,
             IDictionary<string, int> stany)
         {
-            var canActivate = true; //base on offersOnline and its codes and Stany
+            var lastValidAmount = 0;
+            var stanExceeded = false;
 
-            if(canActivate)
+            while(true)
+            {
+                foreach (var code in offer.Codes)
+                {
+                    var codeStan = stany.ContainsKey(code) ? stany[code] : 0;
+                    var codeOnlineAmount = offersOnline.Sum(o => o.Codes.Count(c => c == code));
+                    codeStan -= codeOnlineAmount;
+
+                    if(lastValidAmount + 1 > codeStan)
+                    {
+                        stanExceeded = true;
+                        break;
+                    }
+                }
+
+                if(stanExceeded)
+                {
+                    break;
+                }
+
+                lastValidAmount++;
+            }
+
+            if(lastValidAmount > 0)
             {
                 //TODO Activate via API
                 offersOnline = offersOnline.Concat(new[] { offer });
+                return offer.OfferId;
             }
 
-            return canActivate ? offer.OfferId : null;
+            return null;
         }
     }
 }
