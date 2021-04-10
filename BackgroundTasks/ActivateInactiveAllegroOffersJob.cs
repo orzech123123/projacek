@@ -49,7 +49,8 @@ namespace react_app.BackgroundTasks
                         Offer: o.Value,
                         Codes: lomagService.ExtractCodes(o.Value.Signature, lomagKodyKreskowe, 1)
                     ))
-                    .Where(o => o.Codes.Any());
+                    .Where(o => o.Codes.Any())
+                    .ToList();
 
                 offersOnline = offersWithCodes
                     .Where(o => o.Offer.Publication.Status != AllegroSaleOfferStatus.Ended)
