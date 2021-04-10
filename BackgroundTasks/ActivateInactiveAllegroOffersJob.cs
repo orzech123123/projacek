@@ -102,7 +102,8 @@ namespace react_app.BackgroundTasks
 
             if(lastValidAmount > 0)
             {
-                //TODO Activate via API
+                //TODO Activate via API - zmiana stock.available PUTem na dobrą i aktywacja oferty...
+
                 offersOnline = offersOnline.Concat(new[] { offer });
                 return offer.OfferId;
             }
