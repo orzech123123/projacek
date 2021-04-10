@@ -32,7 +32,7 @@ namespace react_app.Allegro
             return offers;
         }
 
-        public void Update(string offerId, int available)
+        public void Update(AllegroSaleOffer offer, int available)
         {
             var request = new RestRequest($"sale/offer-modification-commands/{Guid.NewGuid()}", Method.PUT);
             request.AddHeader("Authorization", $"Bearer {token}");
@@ -47,7 +47,7 @@ namespace react_app.Allegro
                         type = "CONTAINS_OFFERS",
                         offers = new[]
                         {
-                            new { id = offerId }
+                            new { id = offer.Id }
                         }
                     } 
                 },
@@ -67,7 +67,7 @@ namespace react_app.Allegro
             var response = client.Execute<AllegroOfferCommand>(request);
         }
 
-        public void Activate(string offerId)
+        public void Activate(AllegroSaleOffer offer)
         {
             var request = new RestRequest($"sale/offer-publication-commands/{Guid.NewGuid()}", Method.PUT);
             request.AddHeader("Authorization", $"Bearer {token}");
@@ -82,7 +82,7 @@ namespace react_app.Allegro
                         type = "CONTAINS_OFFERS",
                         offers = new[]
                         {
-                            new { id = offerId }
+                            new { id = offer.Id }
                         }
                     }
                 },

@@ -108,8 +108,8 @@ namespace react_app.BackgroundTasks
             {
                 var finalNumberToActivate = Math.Max(lastValidAmount, MaxOfferAmount);
 
-                allegroOfferService.Update(offer.Offer.Id, finalNumberToActivate);
-                allegroOfferService.Activate(offer.Offer.Id);
+                allegroOfferService.Update(offer.Offer, finalNumberToActivate);
+                allegroOfferService.Activate(offer.Offer);
 
                 offer.Offer.Stock.Available = finalNumberToActivate;
 
