@@ -49,6 +49,7 @@ namespace react_app.Allegro
         public string Name { get; set; }
         public AllegroSaleOfferPublication Publication {get;set;}
         public AllegroSaleOfferExternal External { get; set; }
+        public AllegroSaleOfferStock Stock { get; set; }
 
         public string Signature => External?.Id;
     }
@@ -70,6 +71,10 @@ namespace react_app.Allegro
     public class AllegroSaleOfferExternal
     {
         public string Id { get; set; }
+    }
 
+    public class AllegroSaleOfferStock
+    {
+        public int Available { get; set; }
     }
 }
