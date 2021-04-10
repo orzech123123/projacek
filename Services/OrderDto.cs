@@ -1,6 +1,4 @@
-﻿using react_app.Wmprojack.Entities;
-
-namespace react_app.Services
+﻿namespace react_app.Services
 {
     public class OrderDto
     {

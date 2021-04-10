@@ -43,7 +43,7 @@ namespace react_app.BackgroundTasks
             request.AddParameter("grant_type", "refresh_token");
             request.AddParameter("refresh_token", refreshToken);
 
-            var response = await client.ExecuteAsync<AllegroAccessTokenResponse>(request);
+            var response = await client.ExecuteAsync<AllegroAccessTokenR>(request);
 
             if (!response.Data.IsValid)
             {

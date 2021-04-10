@@ -13,11 +13,13 @@ namespace react_app.BackgroundTasks
     [DisallowConcurrentExecution]
     public class ActivateInactiveAllegroOffersJob : IJob
     {
+        private const int MaxOfferAmount = 15;
+
         private readonly ILogger<ActivateInactiveAllegroOffersJob> _logger;
         private readonly IServiceProvider serviceProvider;
         private readonly AllegroOfferService allegroOfferService;
 
-        private IEnumerable<(string OfferId, IEnumerable<string> Codes, AllegroSaleOfferStatus Status)> offersOnline;
+        private IEnumerable<(AllegroSaleOffer Offer, IEnumerable<string> Codes)> offersOnline;
 
         public ActivateInactiveAllegroOffersJob(
             ILogger<ActivateInactiveAllegroOffersJob> logger,
@@ -44,24 +46,25 @@ namespace react_app.BackgroundTasks
                 var offersWithCodes = offers
                     .Select(o => 
                     (
-                        OfferId: o.Key,
-                        Codes: lomagService.ExtractCodes(o.Value.Signature, lomagKodyKreskowe, 1),
-                        o.Value.Publication.Status
+                        Offer: o.Value,
+                        Codes: lomagService.ExtractCodes(o.Value.Signature, lomagKodyKreskowe, 1)
                     ))
                     .Where(o => o.Codes.Any());
 
                 offersOnline = offersWithCodes
-                    .Where(o => o.Status != AllegroSaleOfferStatus.Ended)
+                    .Where(o => o.Offer.Publication.Status != AllegroSaleOfferStatus.Ended)
                     .ToList();
 
                 var offersToTryActivate = offersWithCodes
-                    .Where(o => o.Status == AllegroSaleOfferStatus.Ended)
+                    .Where(o => o.Offer.Publication.Status == AllegroSaleOfferStatus.Ended)
+                    .Where(o => o.Offer.Id == "10598620769") //TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     .ToList();
 
                 var activatedOfferUrls = offersToTryActivate
                     .Select(o => TryActivateOffer(o, stany))
-                    .Where(id => id != null)
-                    .Select(id => $"https://allegro.pl/oferta/{id}");
+                    .Where(o => o != null)
+                    .Select(o => $"https://allegro.pl/oferta/{o.Id}")
+                    .ToList();
 
                 var activatedOfferUrlsJoined = activatedOfferUrls.Any() ? $"[{string.Join(", ", activatedOfferUrls)}]" : null;
 
@@ -70,19 +73,20 @@ namespace react_app.BackgroundTasks
             }
         }
 
-        private string TryActivateOffer(
-            (string OfferId, IEnumerable<string> Codes, AllegroSaleOfferStatus Status) offer,
+        private AllegroSaleOffer TryActivateOffer(
+            (AllegroSaleOffer Offer, IEnumerable<string> Codes) offer,
             IDictionary<string, int> stany)
         {
             var lastValidAmount = 0;
-            var stanExceeded = false;
 
             while(true)
             {
+                var stanExceeded = false;
+
                 foreach (var code in offer.Codes)
                 {
                     var codeStan = stany.ContainsKey(code) ? stany[code] : 0;
-                    var codeOnlineAmount = offersOnline.Sum(o => o.Codes.Count(c => c == code));
+                    var codeOnlineAmount = offersOnline.Sum(o => o.Offer.Stock.Available * o.Codes.Count(c => c == code));
                     codeStan -= codeOnlineAmount;
 
                     if(lastValidAmount + 1 > codeStan)
@@ -102,10 +106,15 @@ namespace react_app.BackgroundTasks
 
             if(lastValidAmount > 0)
             {
-                //TODO Activate via API - zmiana stock.available PUTem na dobrą i aktywacja oferty...
+                var finalNumberToActivate = Math.Max(lastValidAmount, MaxOfferAmount);
+
+                allegroOfferService.Update(offer.Offer.Id, finalNumberToActivate);
+                allegroOfferService.Activate(offer.Offer.Id);
+
+                offer.Offer.Stock.Available = finalNumberToActivate;
 
                 offersOnline = offersOnline.Concat(new[] { offer });
-                return offer.OfferId;
+                return offer.Offer;
             }
 
             return null;

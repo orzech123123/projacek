@@ -33,7 +33,7 @@ namespace react_app.Allegro
             request.AddParameter("fulfillment.status", "SENT");
             request.AddParameter("updatedAt.gte", settings.Value.StartOrdersSyncFrom.AddHours(-1).ToString("yyyy-MM-ddTHH:mm:ssZ"));
 
-            var response = client.Execute<AllegroCheckoutFormsResponse>(request).Data;
+            var response = client.Execute<AllegroCheckoutForms>(request).Data;
 
             var orders = response.CheckoutForms;
 

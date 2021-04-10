@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace react_app.Allegro
 {
-    public class AllegroAccessTokenResponse
+    public class AllegroAccessTokenR
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
@@ -11,7 +11,7 @@ namespace react_app.Allegro
         public bool IsValid => !string.IsNullOrWhiteSpace(AccessToken) && !string.IsNullOrWhiteSpace(RefreshToken);
     }
 
-    public class AllegroCheckoutFormsResponse
+    public class AllegroCheckoutForms
     {
         public List<AllegroCheckoutForm> CheckoutForms { get; set; }
     }
@@ -38,7 +38,7 @@ namespace react_app.Allegro
 
     }
 
-    public class AllegroSaleOfferResponse
+    public class AllegroSaleOffers
     {
         public List<AllegroSaleOffer> Offers { get; set; }
     }
@@ -76,5 +76,18 @@ namespace react_app.Allegro
     public class AllegroSaleOfferStock
     {
         public int Available { get; set; }
+    }
+
+    public class AllegroOfferCommand
+    {
+        public string Id { get; set; }
+        public AllegroOfferCommandTaskCount TaskCount {get;set; }
+    }
+
+    public class AllegroOfferCommandTaskCount
+    {
+        public int? Total { get; set; }
+        public int? Success { get; set; }
+        public int? Failed { get; set; }
     }
 }

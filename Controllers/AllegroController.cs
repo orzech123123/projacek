@@ -42,7 +42,7 @@ namespace react_app.Controllers
             request.AddParameter("grant_type", "authorization_code");
             request.AddParameter("code", code);
             request.AddParameter("redirect_uri", allegroSettings.Value.ReturnUrl);
-            var response = await client.ExecuteAsync<AllegroAccessTokenResponse>(request);
+            var response = await client.ExecuteAsync<AllegroAccessTokenR>(request);
 
             System.IO.File.WriteAllText(Path.Combine(env.ContentRootPath, "token"), response.Data.AccessToken);
             System.IO.File.WriteAllText(Path.Combine(env.ContentRootPath, "refresh-token"), response.Data.RefreshToken);
