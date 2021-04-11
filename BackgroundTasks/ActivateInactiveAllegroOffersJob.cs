@@ -58,7 +58,7 @@ namespace react_app.BackgroundTasks
 
                 var offersToTryActivate = offersWithCodes
                     .Where(o => o.Offer.Publication.Status == AllegroSaleOfferStatus.Ended)
-                    .Where(o => o.Offer.Id == "10598620769") //TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    //.Where(o => o.Offer.Id == "10598620769") //TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     .ToList();
 
                 var activatedOfferUrls = offersToTryActivate
@@ -75,16 +75,17 @@ namespace react_app.BackgroundTasks
         }
 
         private AllegroSaleOffer TryActivateOffer(
-            (AllegroSaleOffer Offer, IEnumerable<string> Codes) offer,
+            (AllegroSaleOffer Offer, IEnumerable<string> Codes) offerWithCodes,
             IDictionary<string, int> stany)
         {
+            var offer = offerWithCodes.Offer;
             var lastValidAmount = 0;
 
             while(true)
             {
                 var stanExceeded = false;
 
-                foreach (var code in offer.Codes)
+                foreach (var code in offerWithCodes.Codes)
                 {
                     var codeStan = stany.ContainsKey(code) ? stany[code] : 0;
                     var codeOnlineAmount = offersOnline.Sum(o => o.Offer.Stock.Available * o.Codes.Count(c => c == code));
@@ -107,15 +108,15 @@ namespace react_app.BackgroundTasks
 
             if(lastValidAmount > 0)
             {
-                var finalNumberToActivate = Math.Max(lastValidAmount, MaxOfferAmount);
+                var finalNumberToActivate = Math.Min(lastValidAmount, MaxOfferAmount);
 
-                allegroOfferService.Update(offer.Offer, finalNumberToActivate);
-                allegroOfferService.Activate(offer.Offer);
+                offer = allegroOfferService.Update(offer, finalNumberToActivate);
+                offer = allegroOfferService.Activate(offer);
 
-                offer.Offer.Stock.Available = finalNumberToActivate;
+                offerWithCodes.Offer = offer;
+                offersOnline = offersOnline.Concat(new[] { offerWithCodes });
 
-                offersOnline = offersOnline.Concat(new[] { offer });
-                return offer.Offer;
+                return offer;
             }
 
             return null;
