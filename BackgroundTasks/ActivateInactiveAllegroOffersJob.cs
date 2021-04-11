@@ -58,7 +58,7 @@ namespace react_app.BackgroundTasks
 
                 var offersToTryActivate = offersWithCodes
                     .Where(o => o.Offer.Publication.Status == AllegroSaleOfferStatus.Ended)
-                    //.Where(o => o.Offer.Id == "10598620769") //TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    //.Where(o => o.Offer.Id == "10601294507") //TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     .ToList();
 
                 var activatedOfferUrls = offersToTryActivate

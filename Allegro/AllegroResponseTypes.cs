@@ -59,8 +59,14 @@ namespace react_app.Allegro
         public AllegroSaleOfferProduct Product { get; set; }
         public AllegroSaleOfferAfterSalesServices AfterSalesServices { get; set; }
         public List<AllegroSaleOfferParameter> Parameters { get; set; }
+        public List<AllegroSaleOfferImage> Images { get; set; }
 
         public string Signature => External?.Id;
+    }
+
+    public class AllegroSaleOfferImage
+    {
+        public string Url { get; set; }
     }
 
     public class AllegroSaleOfferParameter
@@ -121,6 +127,7 @@ namespace react_app.Allegro
     {
         public string Type { get; set; }
         public string Content { get; set; }
+        public string Url { get; set; }
     }
 
     public class AllegroSaleOfferSellingMode
