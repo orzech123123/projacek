@@ -13,7 +13,7 @@ namespace react_app.BackgroundTasks
     [DisallowConcurrentExecution]
     public class ActivateInactiveAllegroOffersJob : IJob
     {
-        private const int MaxOfferAmount = 15;
+        private const int MaxOfferAmount = 10;
 
         private readonly ILogger<ActivateInactiveAllegroOffersJob> _logger;
         private readonly IServiceProvider serviceProvider;
@@ -106,7 +106,7 @@ namespace react_app.BackgroundTasks
                 lastValidAmount++;
             }
 
-            if(lastValidAmount > 0)
+            if (lastValidAmount > 0)
             {
                 var finalNumberToActivate = Math.Min(lastValidAmount, MaxOfferAmount);
 
