@@ -64,6 +64,10 @@ namespace react_app.Allegro
             request.AddJsonBody(offer);
 
             var response = client.Execute<AllegroOfferCommand>(request);
+            if (!response.IsSuccessful)
+            {
+                throw new InvalidOperationException(nameof(Update));
+            }
 
             return offer;
         }
@@ -94,6 +98,10 @@ namespace react_app.Allegro
             });
 
             var response = client.Execute<AllegroOfferCommand>(request);
+            if(!response.IsSuccessful)
+            {
+                throw new InvalidOperationException(nameof(Activate));
+            }
 
             return offer;
         }
