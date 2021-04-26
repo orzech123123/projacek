@@ -138,7 +138,7 @@ namespace react_app.Configuration
                 }
             });
 
-            //wmprojackDbContext.Database.EnsureCreated();
+            wmprojackDbContext.Database.EnsureCreated();
         }
     }
 }

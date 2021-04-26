@@ -8,3 +8,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+  db:
+    image: "mcr.microsoft.com/mssql/server"
+    environment:
+        SA_PASSWORD: "krynkszta.X"
+        ACCEPT_EULA: "Y"
