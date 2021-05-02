@@ -1,0 +1,13 @@
+# Pull down an image from Docker Hub that includes the .NET core SDK: 
+# https://hub.docker.com/_/microsoft-dotnet-core-sdk
+# This is so we have all the tools necessary to compile the app.
+FROM mcr.microsoft.com/mssql/server
+
+ENV SA_PASSWORD=krynkszta.X
+ENV ACCEPT_EULA=Y
+
+EXPOSE 1433
+
+#RUN /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'krynkszta.X' -i /home/sql-server-volume/restore-vat2jacoljacol.sql
+#RUN /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'krynkszta.X' -i /home/sql-server-volume/restore-wmprojack.sql
+

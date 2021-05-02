@@ -34,3 +34,11 @@ COPY --from=build /app/publish .
 
 # To run the app, run `dotnet react-app.dll`, which we just copied over.
 ENTRYPOINT ["dotnet", "react-app.dll"]
+
+#COPY docker-entrypoint.sh .
+#RUN chmod +x ./docker-entrypoint.sh
+#RUN ./docker-entrypoint.sh
+
+#COPY docker-entrypoint.bat .
+#RUN chmod 777 ./docker-entrypoint.sh
+#ENTRYPOINT ["./docker-entrypoint.sh"] 

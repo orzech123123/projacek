@@ -8,13 +8,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+        - "sql-server"
   sql-server:
-    image: "mcr.microsoft.com/mssql/server"
-    volumes:
-      - ./DockerVolumes/sql-server-volume:/home/sql-server-volume
-    environment:
-        SA_PASSWORD: "krynkszta.X"
-        ACCEPT_EULA: "Y"
     ports:
         - "1433:1433"
-
+    image: ${DOCKER_REGISTRY-}sqlserver
+    volumes:
+      - ./DockerVolumes/sql-server-volume:/home/sql-server-volume
+    build:
+      context: .
+      dockerfile: Dockerfile2
+    # depends_on:
+    #   - "sql-server" 
