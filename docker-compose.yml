@@ -1,23 +1,21 @@
 version: '3.4'
 
 services:
-  react-app:
-    ports:
-        - "80:80"
-    image: ${DOCKER_REGISTRY-}reactapp
-    build:
-      context: .
-      dockerfile: Dockerfile
-    depends_on:
-        - "sql-server"
   sql-server:
+    container_name: sql-server
     ports:
         - "1433:1433"
     image: ${DOCKER_REGISTRY-}sqlserver
     volumes:
-      - ./DockerVolumes/sql-server-volume:/home/sql-server-volume
+      - ./Docker/volumes/sql-server-volume:/home/sql-server-volume
     build:
       context: .
-      dockerfile: Dockerfile2
-    # depends_on:
-    #   - "sql-server" 
+      dockerfile: SqlServerDockerfile
+  react-app:
+    container_name: projack
+    ports:
+        - "80:80"
+    image: ${DOCKER_REGISTRY-}projack
+    build:
+      context: .
+      dockerfile: ReactAppDockerfile
