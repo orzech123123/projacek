@@ -3,7 +3,7 @@ version: '3.4'
 services:
   react-app:
     environment:
-      #- ASPNETCORE_ENVIRONMENT=Development
+      #- ASPNETCORE_ENVIRONMENT=Development #uncomment for docker-compose-up windows VS debugging
       #- ASPNETCORE_URLS=https://+:443;http://+:80
       - ASPNETCORE_URLS=http://+:80
     ports:
