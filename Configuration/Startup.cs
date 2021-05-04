@@ -134,6 +134,7 @@ namespace react_app.Configuration
 
                 if (env.IsDevelopment())
                 {
+                    //spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
