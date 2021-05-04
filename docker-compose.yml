@@ -7,7 +7,7 @@ services:
         - "14330:1433"
     image: ${DOCKER_REGISTRY-}sqlserver
     volumes:
-      - ./Docker/volumes/sql-server-volume:/home/sql-server-volume
+      - ./Docker/volumes/sql-server-volume:/home/sql-server-volume:Z
     build:
       context: .
       dockerfile: SqlServerDockerfile
