@@ -24,6 +24,5 @@ RUN curl --silent --location https://deb.nodesource.com/setup_10.x | bash -
 RUN apt-get install --yes nodejs
 RUN npm install -g npm
 
-RUN ["chmod", "+x", "/home/sql-server-volume/restore.sh"]
 
 ENTRYPOINT ["dotnet", "react-app.dll"]
