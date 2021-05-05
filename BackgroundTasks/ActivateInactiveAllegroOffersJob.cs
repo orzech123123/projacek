@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 using System.Data;
 using Microsoft.Data.SqlClient;
+using System.IO;
 
 namespace react_app.BackgroundTasks
 {
@@ -47,7 +48,16 @@ namespace react_app.BackgroundTasks
                 cmd.CommandText = "dbo.sp_BackupDatabases";
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "C:\\Projects\\" });
+                try
+                {
+
+                    Directory.CreateDirectory("/home/sql-server-volume/backups/temp/");
+                }
+                catch(Exception e)
+                {
+                    _logger.LogError(e, "-----------------------------------------------");
+                }
+                cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "/home/sql-server-volume/backups/temp" });
                 cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
 
                 if (cmd.Connection.State != ConnectionState.Open)
