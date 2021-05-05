@@ -48,15 +48,8 @@ namespace react_app.BackgroundTasks
                 cmd.CommandText = "dbo.sp_BackupDatabases";
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                try
-                {
+                Directory.CreateDirectory("/home/sql-server-volume/backups/temp/");
 
-                    Directory.CreateDirectory("/home/sql-server-volume/backups/temp/");
-                }
-                catch(Exception e)
-                {
-                    _logger.LogError(e, "-----------------------------------------------");
-                }
                 cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "/home/sql-server-volume/backups/temp" });
                 cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
 

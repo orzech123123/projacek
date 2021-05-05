@@ -16,6 +16,8 @@ services:
     ports:
         - "8080:80"
     image: ${DOCKER_REGISTRY-}projack
+    volumes:
+      - ./Docker/volumes/sql-server-volume:/home/sql-server-volume
     build:
       context: .
       dockerfile: ReactAppDockerfile
