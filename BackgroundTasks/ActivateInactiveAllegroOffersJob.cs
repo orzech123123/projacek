@@ -7,6 +7,11 @@ using react_app.Services;
 using react_app.Allegro;
 using System.Linq;
 using System.Collections.Generic;
+using react_app.Lomag;
+using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
+using System.Data;
+using Microsoft.Data.SqlClient;
 
 namespace react_app.BackgroundTasks
 {
@@ -35,6 +40,25 @@ namespace react_app.BackgroundTasks
         {
             using (var scope = serviceProvider.CreateScope())
             {
+                //TODO
+                var c = scope.ServiceProvider.GetService<LomagDbContext>();
+                DbCommand cmd = c.Database.GetDbConnection().CreateCommand();
+
+                cmd.CommandText = "dbo.sp_BackupDatabases";
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "C:\\Projects\\" });
+                cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
+
+                if (cmd.Connection.State != ConnectionState.Open)
+                    cmd.Connection.Open();
+
+                await cmd.ExecuteNonQueryAsync();
+                //TODO
+
+
+
+
                 var lomagService = scope.ServiceProvider.GetService<LomagService>();
 
                 var towary = await lomagService.GetTowary();
