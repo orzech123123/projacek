@@ -71,25 +71,25 @@ namespace react_app.Configuration
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddHostedService<QuartzHostedService>();
 
-            services.AddTransient<OrdersSyncBackgroundJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(OrdersSyncBackgroundJob),
-                cronExpression: "0 0/1 * * * ?"));
+            //services.AddTransient<OrdersSyncBackgroundJob>();
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(OrdersSyncBackgroundJob),
+            //    cronExpression: "0 0/1 * * * ?"));
 
-            services.AddTransient<RefreshAllegroTokenBackgroundJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(RefreshAllegroTokenBackgroundJob),
-                cronExpression: "0 0/15 * * * ?"));
+            //services.AddTransient<RefreshAllegroTokenBackgroundJob>();
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(RefreshAllegroTokenBackgroundJob),
+            //    cronExpression: "0 0/15 * * * ?"));
 
-            services.AddTransient<TruncateLogsBackgroundJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(TruncateLogsBackgroundJob),
-                cronExpression: "0 0 0/23 * * ?"));
+            //services.AddTransient<TruncateLogsBackgroundJob>();
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(TruncateLogsBackgroundJob),
+            //    cronExpression: "0 0 0/23 * * ?"));
 
-            services.AddTransient<EmailMinimumInventoryBackgroundJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(EmailMinimumInventoryBackgroundJob),
-                cronExpression: "0 0 0/23 * * ?"));
+            //services.AddTransient<EmailMinimumInventoryBackgroundJob>();
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(EmailMinimumInventoryBackgroundJob),
+            //    cronExpression: "0 0 0/23 * * ?"));
 
             services.AddTransient<ActivateInactiveAllegroOffersJob>();
             services.AddSingleton(new JobSchedule(
