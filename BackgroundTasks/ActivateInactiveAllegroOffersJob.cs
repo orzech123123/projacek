@@ -14,6 +14,7 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
+using System.Diagnostics;
 
 namespace react_app.BackgroundTasks
 {
@@ -38,6 +39,27 @@ namespace react_app.BackgroundTasks
             this.allegroOfferService = allegroOfferService;
         }
 
+        private static void Exec(string cmd)
+        {
+            var escapedArgs = cmd.Replace("\"", "\\\"");
+
+            using var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"{escapedArgs}\""
+                }
+            };
+
+            process.Start();
+            process.WaitForExit();
+        }
+
         public async Task Execute(IJobExecutionContext context)
         {
             using (var scope = serviceProvider.CreateScope())
@@ -51,6 +73,7 @@ namespace react_app.BackgroundTasks
 
 
                 Directory.CreateDirectory("/home/sql-server-volume/backups/temp/");
+                Exec("chmod -R 777 /home/sql-server-volume/backups/temp/");
 
                 cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "/home/sql-server-volume/backups/temp/" });
                 cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
