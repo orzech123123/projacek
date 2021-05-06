@@ -13,6 +13,7 @@ using System.Data.Common;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.IO;
+using System.IO.Compression;
 
 namespace react_app.BackgroundTasks
 {
@@ -48,8 +49,8 @@ namespace react_app.BackgroundTasks
                 cmd.CommandText = "dbo.sp_BackupDatabases";
                 cmd.CommandType = CommandType.StoredProcedure;
 
+
                 Directory.CreateDirectory("/home/sql-server-volume/backups/temp/");
-                File.CreateText("/home/sql-server-volume/backups/temp/rusztra.txt");
 
                 cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "/home/sql-server-volume/backups/temp/" });
                 cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
@@ -58,8 +59,14 @@ namespace react_app.BackgroundTasks
                     cmd.Connection.Open();
 
                 await cmd.ExecuteNonQueryAsync();
+
+
+                ZipFile.CreateFromDirectory("/home/sql-server-volume/backups/temp/", $"/home/sql-server-volume/backups/archive{Guid.NewGuid()}.zip");
+                Directory.Delete("/home/sql-server-volume/backups/temp/", true);
                 //TODO
 
+                _logger.LogInformation($"Aktywacja nieaktywnych ofert zakończona powodzeniem. " +
+                    $"Aktywowano ofert: {0}");
 
                 return;
 
