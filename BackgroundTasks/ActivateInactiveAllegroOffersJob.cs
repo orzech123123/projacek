@@ -51,7 +51,7 @@ namespace react_app.BackgroundTasks
                 Directory.CreateDirectory("/home/sql-server-volume/backups/temp/");
                 File.CreateText("/home/sql-server-volume/backups/temp/rusztra.txt");
 
-                cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "/home/sql-server-volume/backups/temp" });
+                cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "/home/sql-server-volume/backups/temp/" });
                 cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
 
                 if (cmd.Connection.State != ConnectionState.Open)
