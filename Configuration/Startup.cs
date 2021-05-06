@@ -115,7 +115,7 @@ namespace react_app.Configuration
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
+            //app.UseSpaStaticFiles();
 
             app.UseSerilogRequestLogging();
 
