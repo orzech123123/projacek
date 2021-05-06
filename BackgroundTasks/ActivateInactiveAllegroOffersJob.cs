@@ -79,7 +79,7 @@ namespace react_app.BackgroundTasks
                 cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
 
                 if (cmd.Connection.State != ConnectionState.Open)
-                    cmd.Connection.Open();
+                    cmd.Connection.Open(); 
 
                 await cmd.ExecuteNonQueryAsync();
 
