@@ -12,19 +12,21 @@ namespace react_app.Allegro
 {
     public class AllegroOfferService
     {
-        private readonly string token;
         private readonly RestClient client;
+        private readonly IWebHostEnvironment env;
 
         public AllegroOfferService(IWebHostEnvironment env)
         {
-            token = File.ReadAllText(Path.Combine(env.ContentRootPath, "token"));
+            this.env = env;
             client = new RestClient("https://api.allegro.pl");
         }
+
+        private string GetToken() => File.ReadAllText(Path.Combine(env.ContentRootPath, "token"));
 
         public IDictionary<string, AllegroSaleOffer> GetAll()
         {
             var request = new RestRequest($"sale/offers", Method.GET);
-            request.AddHeader("Authorization", $"Bearer {token}");
+            request.AddHeader("Authorization", $"Bearer {GetToken()}");
             request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
             request.AddParameter("limit", "1000");
 
@@ -38,7 +40,7 @@ namespace react_app.Allegro
         public AllegroSaleOffer GetById(string offerId)
         {
             var request = new RestRequest($"sale/offers/{offerId}", Method.GET);
-            request.AddHeader("Authorization", $"Bearer {token}");
+            request.AddHeader("Authorization", $"Bearer {GetToken()}");
             request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
 
             var response = client.Execute<AllegroSaleOffer>(request);
@@ -53,7 +55,7 @@ namespace react_app.Allegro
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 Converters = new [] { new UpperCaseStringEnumConverter() }
             });
-            request.AddHeader("Authorization", $"Bearer {token}");
+            request.AddHeader("Authorization", $"Bearer {GetToken()}");
             request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
             request.AddHeader("Content-Type", $"application/vnd.allegro.public.v1+json");
 
@@ -75,7 +77,7 @@ namespace react_app.Allegro
         public AllegroSaleOffer Activate(AllegroSaleOffer offer)
         {
             var request = new RestRequest($"sale/offer-publication-commands/{Guid.NewGuid()}", Method.PUT);
-            request.AddHeader("Authorization", $"Bearer {token}");
+            request.AddHeader("Authorization", $"Bearer {GetToken()}");
             request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
             request.AddHeader("Content-Type", $"application/vnd.allegro.public.v1+json");
             request.AddJsonBody(new
