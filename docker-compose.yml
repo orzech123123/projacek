@@ -8,6 +8,8 @@ services:
     image: ${DOCKER_REGISTRY-}sqlserver
     volumes:
       - ./Docker/volumes/sql-server-volume:/home/sql-server-volume
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     build:
       context: .
       dockerfile: SqlServerDockerfile
@@ -18,6 +20,8 @@ services:
     image: ${DOCKER_REGISTRY-}projack
     volumes:
       - ./Docker/volumes/sql-server-volume:/home/sql-server-volume
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     build:
       context: .
       dockerfile: ReactAppDockerfile
