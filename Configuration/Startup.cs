@@ -37,10 +37,10 @@ namespace react_app.Configuration
             }); 
 
             // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/build";
-            });
+            //services.AddSpaStaticFiles(configuration =>
+            //{
+            //    configuration.RootPath = "ClientApp/build";
+            //});
 
             services.Configure<ApaczkaSettings>(Configuration.GetSection("apaczka"));
             services.Configure<AllegroSettings>(Configuration.GetSection("allegro"));
@@ -128,16 +128,16 @@ namespace react_app.Configuration
                     pattern: "{controller}/{action=Index}/{id?}");
             });
 
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
+            //app.UseSpa(spa =>
+            //{
+            //    spa.Options.SourcePath = "ClientApp";
 
-                if (env.IsDevelopment())
-                {
-                    //spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
-            });
+            //    if (env.IsDevelopment())
+            //    {
+            //        //spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+            //        spa.UseReactDevelopmentServer(npmScript: "start");
+            //    }
+            //});
 
             //wmprojackDbContext.Database.EnsureCreated();
         }
