@@ -14,6 +14,7 @@ using react_app.Apaczka;
 using react_app.BackgroundTasks;
 using react_app.Lomag;
 using react_app.Services;
+using react_app.Utils;
 using react_app.Wmprojack;
 using Serilog;
 
@@ -34,13 +35,13 @@ namespace react_app.Configuration
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
-            }); 
+            });
 
             // In production, the React files will be served from this directory
-            //services.AddSpaStaticFiles(configuration =>
-            //{
-            //    configuration.RootPath = "ClientApp/build";
-            //});
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "ClientApp/build";
+            });
 
             services.Configure<ApaczkaSettings>(Configuration.GetSection("apaczka"));
             services.Configure<AllegroSettings>(Configuration.GetSection("allegro"));
@@ -67,40 +68,45 @@ namespace react_app.Configuration
             services.AddTransient<LomagService>();
             services.AddTransient<EmailService>();
 
+            services.AddTransient<CommandExecutor>();
+
             services.AddSingleton<IJobFactory, SingletonJobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddHostedService<QuartzHostedService>();
 
-            //services.AddTransient<OrdersSyncBackgroundJob>();
-            //services.AddSingleton(new JobSchedule(
-            //    jobType: typeof(OrdersSyncBackgroundJob),
-            //    cronExpression: "0 0/1 * * * ?"));
+            services.AddTransient<OrdersSyncBackgroundJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(OrdersSyncBackgroundJob),
+                cronExpression: "0 0/1 * * * ?"));
 
-            //services.AddTransient<RefreshAllegroTokenBackgroundJob>();
-            //services.AddSingleton(new JobSchedule(
-            //    jobType: typeof(RefreshAllegroTokenBackgroundJob),
-            //    cronExpression: "0 0/15 * * * ?"));
+            services.AddTransient<RefreshAllegroTokenBackgroundJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(RefreshAllegroTokenBackgroundJob),
+                cronExpression: "0 0/15 * * * ?"));
 
-            //services.AddTransient<TruncateLogsBackgroundJob>();
-            //services.AddSingleton(new JobSchedule(
-            //    jobType: typeof(TruncateLogsBackgroundJob),
-            //    cronExpression: "0 0 0/23 * * ?"));
+            services.AddTransient<TruncateLogsBackgroundJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(TruncateLogsBackgroundJob),
+                cronExpression: "0 0 0/23 * * ?"));
 
-            //services.AddTransient<EmailMinimumInventoryBackgroundJob>();
-            //services.AddSingleton(new JobSchedule(
-            //    jobType: typeof(EmailMinimumInventoryBackgroundJob),
-            //    cronExpression: "0 0 0/23 * * ?"));
+            services.AddTransient<EmailMinimumInventoryBackgroundJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(EmailMinimumInventoryBackgroundJob),
+                cronExpression: "0 0 0/23 * * ?"));
 
             services.AddTransient<ActivateInactiveAllegroOffersJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(ActivateInactiveAllegroOffersJob),
                 cronExpression: "0 0/1 * * * ?"));
+
+            services.AddTransient<BackupAndSendDatabasesJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(BackupAndSendDatabasesJob),
+                cronExpression: "0 0/1 * * * ?"));
         }
 
-
         public void Configure(IApplicationBuilder app,
-            IWebHostEnvironment env,
-            WmprojackDbContext wmprojackDbContext)
+            IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -115,7 +121,7 @@ namespace react_app.Configuration
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            //app.UseSpaStaticFiles();
+            app.UseSpaStaticFiles();
 
             app.UseSerilogRequestLogging();
 
@@ -128,16 +134,16 @@ namespace react_app.Configuration
                     pattern: "{controller}/{action=Index}/{id?}");
             });
 
-            //app.UseSpa(spa =>
-            //{
-            //    spa.Options.SourcePath = "ClientApp";
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
 
-            //    if (env.IsDevelopment())
-            //    {
-            //        //spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
-            //        spa.UseReactDevelopmentServer(npmScript: "start");
-            //    }
-            //});
+                if (env.IsDevelopment())
+                {
+                    //spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                }
+            });
 
             //wmprojackDbContext.Database.EnsureCreated();
         }

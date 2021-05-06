@@ -26,78 +26,22 @@ namespace react_app.BackgroundTasks
         private readonly ILogger<ActivateInactiveAllegroOffersJob> _logger;
         private readonly IServiceProvider serviceProvider;
         private readonly AllegroOfferService allegroOfferService;
-        private readonly EmailService emailService;
         private IEnumerable<(AllegroSaleOffer Offer, IEnumerable<string> Codes)> offersOnline;
 
         public ActivateInactiveAllegroOffersJob(
             ILogger<ActivateInactiveAllegroOffersJob> logger,
             IServiceProvider serviceProvider,
-            AllegroOfferService allegroOfferService,
-            EmailService emailService)
+            AllegroOfferService allegroOfferService)
         {
             _logger = logger;
             this.serviceProvider = serviceProvider;
             this.allegroOfferService = allegroOfferService;
-            this.emailService = emailService;
-        }
-
-        private static void Exec(string cmd)
-        {
-            var escapedArgs = cmd.Replace("\"", "\\\"");
-
-            using var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "/bin/bash",
-                    Arguments = $"-c \"{escapedArgs}\""
-                }
-            };
-
-            process.Start();
-            process.WaitForExit();
         }
 
         public async Task Execute(IJobExecutionContext context)
         {
             using (var scope = serviceProvider.CreateScope())
             {
-                //TODO
-                var c = scope.ServiceProvider.GetService<LomagDbContext>();
-                DbCommand cmd = c.Database.GetDbConnection().CreateCommand();
-
-                cmd.CommandText = "dbo.sp_BackupDatabases";
-                cmd.CommandType = CommandType.StoredProcedure;
-
-
-                Directory.CreateDirectory("/home/sql-server-volume/backups/temp/");
-                Exec("chmod -R 777 /home/sql-server-volume/backups/temp/");
-
-                cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "/home/sql-server-volume/backups/temp/" });
-                cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
-
-                if (cmd.Connection.State != ConnectionState.Open)
-                    cmd.Connection.Open(); 
-
-                await cmd.ExecuteNonQueryAsync();
-
-                var zipFilename = $"/home/sql-server-volume/backups/archive{Guid.NewGuid()}.zip";
-                ZipFile.CreateFromDirectory("/home/sql-server-volume/backups/temp/", zipFilename);
-                Directory.Delete("/home/sql-server-volume/backups/temp/", true);
-
-                await emailService.SendEmailAsync("michalorzechowski123@gmail.com", "BAZKI", "bazki", zipFilename);
-                //TODO
-
-                _logger.LogInformation($"Aktywacja nieaktywnych ofert zakończona powodzeniem. " +
-                    $"Aktywowano ofert: {0}");
-
-                return;
-
-
                 var lomagService = scope.ServiceProvider.GetService<LomagService>();
 
                 var towary = await lomagService.GetTowary();

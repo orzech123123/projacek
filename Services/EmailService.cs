@@ -15,14 +15,14 @@ namespace react_app.Services
             _emailSettings = emailSettings;
         }
 
-        public Task SendEmailAsync(string email, string subject, string message, string zip = null)
+        public Task SendEmailAsync(string email, string subject, string message, string attachmentFilepath = null)
         {
             var mailMessage = new MailMessage(_emailSettings.Value.MailSender, email, subject, message);
             mailMessage.IsBodyHtml = true;
 
-            if(zip != null)
+            if(attachmentFilepath != null)
             {
-                var attachment = new Attachment(zip);
+                var attachment = new Attachment(attachmentFilepath);
                 mailMessage.Attachments.Add(attachment);
             }
 

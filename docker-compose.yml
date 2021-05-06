@@ -14,7 +14,7 @@ services:
   react-app:
     container_name: projack
     ports:
-        - "8080:80"
+        - "80:80"
     image: ${DOCKER_REGISTRY-}projack
     volumes:
       - ./Docker/volumes/sql-server-volume:/home/sql-server-volume

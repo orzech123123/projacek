@@ -89,11 +89,11 @@ AS
          
 	-- Create backup filename in path\filename.extension format for full,diff and log backups
 	IF @backupType = 'F'
-		SET @BackupFile = @backupLocation+REPLACE(REPLACE(@DBNAME, '[',''),']','')+ '_FULL_'+ @dateTime+ '.BAK'
+		SET @BackupFile = @backupLocation+REPLACE(REPLACE(@DBNAME, '[',''),']','')+ '.BAK'
 	ELSE IF @backupType = 'D'
-		SET @BackupFile = @backupLocation+REPLACE(REPLACE(@DBNAME, '[',''),']','')+ '_DIFF_'+ @dateTime+ '.BAK'
+		SET @BackupFile = @backupLocation+REPLACE(REPLACE(@DBNAME, '[',''),']','')+ '.BAK'
 	ELSE IF @backupType = 'L'
-		SET @BackupFile = @backupLocation+REPLACE(REPLACE(@DBNAME, '[',''),']','')+ '_LOG_'+ @dateTime+ '.TRN'
+		SET @BackupFile = @backupLocation+REPLACE(REPLACE(@DBNAME, '[',''),']','')+ '.TRN'
          
 	-- Provide the backup a name for storing in the media
 	IF @backupType = 'F'
