@@ -49,6 +49,7 @@ namespace react_app.BackgroundTasks
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 Directory.CreateDirectory("/home/sql-server-volume/backups/temp/");
+                File.CreateText("/home/sql-server-volume/backups/temp/rusztra.txt");
 
                 cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = "/home/sql-server-volume/backups/temp" });
                 cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
@@ -60,6 +61,7 @@ namespace react_app.BackgroundTasks
                 //TODO
 
 
+                return;
 
 
                 var lomagService = scope.ServiceProvider.GetService<LomagService>();
