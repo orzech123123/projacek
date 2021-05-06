@@ -26,17 +26,19 @@ namespace react_app.BackgroundTasks
         private readonly ILogger<ActivateInactiveAllegroOffersJob> _logger;
         private readonly IServiceProvider serviceProvider;
         private readonly AllegroOfferService allegroOfferService;
-
+        private readonly EmailService emailService;
         private IEnumerable<(AllegroSaleOffer Offer, IEnumerable<string> Codes)> offersOnline;
 
         public ActivateInactiveAllegroOffersJob(
             ILogger<ActivateInactiveAllegroOffersJob> logger,
             IServiceProvider serviceProvider,
-            AllegroOfferService allegroOfferService)
+            AllegroOfferService allegroOfferService,
+            EmailService emailService)
         {
             _logger = logger;
             this.serviceProvider = serviceProvider;
             this.allegroOfferService = allegroOfferService;
+            this.emailService = emailService;
         }
 
         private static void Exec(string cmd)
@@ -83,9 +85,11 @@ namespace react_app.BackgroundTasks
 
                 await cmd.ExecuteNonQueryAsync();
 
-
-                ZipFile.CreateFromDirectory("/home/sql-server-volume/backups/temp/", $"/home/sql-server-volume/backups/archive{Guid.NewGuid()}.zip");
+                var zipFilename = $"/home/sql-server-volume/backups/archive{Guid.NewGuid()}.zip";
+                ZipFile.CreateFromDirectory("/home/sql-server-volume/backups/temp/", zipFilename);
                 Directory.Delete("/home/sql-server-volume/backups/temp/", true);
+
+                await emailService.SendEmailAsync("michalorzechowski123@gmail.com", "BAZKI", "bazki", zipFilename);
                 //TODO
 
                 _logger.LogInformation($"Aktywacja nieaktywnych ofert zakończona powodzeniem. " +
