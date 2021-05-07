@@ -10,6 +10,9 @@ cd projack/
 
 ## DOCKER WAY
 
+sudo apt-get install -y docker.io
+sudo chmod +x /usr/local/bin/docker-compose
+
 docker compose up
 
 in browser: http://localhost/
