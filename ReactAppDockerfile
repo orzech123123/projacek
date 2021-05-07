@@ -1,10 +1,7 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 
-
 RUN curl --silent --location https://deb.nodesource.com/setup_10.x | bash -
 RUN apt-get install --yes nodejs
-RUN npm install -g npm
-
 
 WORKDIR /src
 COPY . .
@@ -18,11 +15,5 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
 EXPOSE 80
 
 COPY --from=build /app/publish .
-
-
-RUN curl --silent --location https://deb.nodesource.com/setup_10.x | bash -
-RUN apt-get install --yes nodejs
-RUN npm install -g npm
-
 
 ENTRYPOINT ["dotnet", "react-app.dll"]
