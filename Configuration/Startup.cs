@@ -102,7 +102,7 @@ namespace react_app.Configuration
             services.AddTransient<BackupAndSendDatabasesJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(BackupAndSendDatabasesJob),
-                cronExpression: "0 0 0/23 * * ?"));
+                cronExpression: "0 0/1 * * * ?"));
         }
 
         public void Configure(IApplicationBuilder app,

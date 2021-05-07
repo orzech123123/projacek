@@ -59,7 +59,8 @@ namespace react_app.BackgroundTasks
 
                 CreateTempDirectory();
 
-                await BackupDatabasesAsync(dbContext);
+                await BackupDatabasesAsync(dbContext, tempPath);
+                await BackupDatabasesAsync(dbContext, backupsPath);
 
                 var zipFilename = ZipBackups();
 
@@ -88,7 +89,7 @@ namespace react_app.BackgroundTasks
 
         private string ZipBackups()
         {
-            var zipFilename = $"{backupsPath}{DateTime.Now:yyyy-MM-dd_HH:mm:ss}.zip";
+            var zipFilename = $"{backupsPath}backups-{DateTime.Now:yyyy-MM-dd_HH:mm:ss}.zip";
             ZipFile.CreateFromDirectory(tempPath, zipFilename);
 
             return zipFilename;
@@ -100,14 +101,14 @@ namespace react_app.BackgroundTasks
             commandExecutor.Permission("-R 777", tempPath);
         }
 
-        private async Task BackupDatabasesAsync(DbContext dbContext)
+        private async Task BackupDatabasesAsync(DbContext dbContext, string path)
         {
             var cmd = dbContext.Database.GetDbConnection().CreateCommand();
 
             cmd.CommandText = "dbo.sp_BackupDatabases";
             cmd.CommandType = CommandType.StoredProcedure;
 
-            cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = tempPath });
+            cmd.Parameters.Add(new SqlParameter("@backupLocation", SqlDbType.VarChar) { Value = path });
             cmd.Parameters.Add(new SqlParameter("@backupType", SqlDbType.VarChar) { Value = "F" });
 
             if (cmd.Connection.State != ConnectionState.Open)
