@@ -23,3 +23,7 @@ when debugging via Visual Studio you need to run sql-server on your own (see: VS
 docker exec -it sql-server bash -c "cd /opt/mssql/bin ; ./sqlservr"
 
 on linux host: chmod -R 777 ./Docker/volumes/sql-server-volume/
+
+## DATABASE
+
+DBCC SHRINKFILE(2,256) - shirnk ldf
