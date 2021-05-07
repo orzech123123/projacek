@@ -10,7 +10,7 @@ services:
       - ./Docker/volumes/sql-server-volume:/home/sql-server-volume
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./Docker/volumes/sql-server-volume:/var/opt/mssql
+      #- ./Docker/volumes/sql-server-volume:/var/opt/mssql
     build:
       context: .
       dockerfile: SqlServerDockerfile
