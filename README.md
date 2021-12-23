@@ -18,7 +18,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 chmod -R 777 ./Docker/volumes/sql-server-volume/
 
-docker compose up
+docker-compose up
 
 docker exec -it sql-server "/home/sql-server-volume/restore.sh"
 
