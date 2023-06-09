@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  sql-server:
+    container_name: sql-server
+    ports:
+        - "1433:1433"
+    image: ${DOCKER_REGISTRY-}sqlserver
+    volumes:
+      - ./Docker/volumes/sql-server-volume:/home/sql-server-volume
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./Docker/volumes/sql-server-volume:/var/opt/mssql
+    build:
+      context: .
+      dockerfile: SqlServerDockerfile
+  react-app:
+    container_name: projack
+    ports:
+        - "80:80"
+    image: ${DOCKER_REGISTRY-}projack
+    volumes:
+      - ./Docker/volumes/sql-server-volume:/home/sql-server-volume
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    build:
+      context: .
+      dockerfile: ReactAppDockerfile
