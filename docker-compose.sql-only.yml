@@ -14,15 +14,3 @@ services:
     build:
       context: .
       dockerfile: SqlServerDockerfile
-  react-app:
-    container_name: projack
-    ports:
-        - "80:80"
-    image: ${DOCKER_REGISTRY-}projack
-    volumes:
-      - ./Docker/volumes/sql-server-volume:/home/sql-server-volume
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    build:
-      context: .
-      dockerfile: ReactAppDockerfile
