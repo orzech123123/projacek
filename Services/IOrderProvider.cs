@@ -12,6 +12,7 @@ namespace react_app.Services
     public enum OrderProviderType
     {
         Allegro,
-        Apaczka
+        Apaczka,
+        Apilo
     }
 }

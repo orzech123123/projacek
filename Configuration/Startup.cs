@@ -11,12 +11,16 @@ using Quartz.Impl;
 using Quartz.Spi;
 using react_app.Allegro;
 using react_app.Apaczka;
+using react_app.Apilo;
 using react_app.BackgroundTasks;
 using react_app.Lomag;
 using react_app.Services;
 using react_app.Utils;
 using react_app.Wmprojack;
 using Serilog;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
 
 namespace react_app.Configuration
 {
@@ -43,6 +47,7 @@ namespace react_app.Configuration
                 configuration.RootPath = "ClientApp/build";
             });
 
+            services.Configure<ApiloSettings>(Configuration.GetSection("apilo"));
             services.Configure<ApaczkaSettings>(Configuration.GetSection("apaczka"));
             services.Configure<AllegroSettings>(Configuration.GetSection("allegro"));
             services.Configure<Settings>(Configuration.GetSection("settings"));
@@ -60,10 +65,11 @@ namespace react_app.Configuration
                 options => options.EnableRetryOnFailure())
             );
 
-            services.AddTransient<AllegroOfferService>();
-            services.AddTransient<AllegroOrderService>();
-            services.AddTransient<IOrderProvider, AllegroOrderProvider>();
-            services.AddTransient<IOrderProvider, ApaczkaOrderProvider>();
+            //services.AddTransient<AllegroOfferService>();
+            //services.AddTransient<AllegroOrderService>();
+            //services.AddTransient<IOrderProvider, AllegroOrderProvider>();
+            //services.AddTransient<IOrderProvider, ApaczkaOrderProvider>();
+            services.AddTransient<IOrderProvider, ApiloOrderProvider>();
             services.AddTransient<OrderService>();
             services.AddTransient<LomagService>();
             services.AddTransient<EmailService>();
@@ -74,35 +80,41 @@ namespace react_app.Configuration
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddHostedService<QuartzHostedService>();
 
-            services.AddTransient<OrdersSyncBackgroundJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(OrdersSyncBackgroundJob),
-                cronExpression: "0 0/1 * * * ?"));
+            //services.AddTransient<OrdersSyncBackgroundJob>();
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(OrdersSyncBackgroundJob),
+            //    cronExpression: "0 0/1 * * * ?"));
 
-            services.AddTransient<RefreshAllegroTokenBackgroundJob>();
+            services.AddTransient<RefreshApiloTokenBackgroundJob>();
             services.AddSingleton(new JobSchedule(
-                jobType: typeof(RefreshAllegroTokenBackgroundJob),
-                cronExpression: "0 0/15 * * * ?"));
+                jobType: typeof(RefreshApiloTokenBackgroundJob),
+                cronExpression: "0 0/1 * * * ?"));
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(RefreshApiloTokenBackgroundJob)));
 
             services.AddTransient<TruncateLogsBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(TruncateLogsBackgroundJob),
                 cronExpression: "0 0 0/23 * * ?"));
 
-            services.AddTransient<EmailMinimumInventoryBackgroundJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(EmailMinimumInventoryBackgroundJob),
-                cronExpression: "0 0 0/23 * * ?"));
 
-            services.AddTransient<ActivateInactiveAllegroOffersJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(ActivateInactiveAllegroOffersJob),
-                cronExpression: "0 0/1 * * * ?"));
 
-            services.AddTransient<BackupAndSendDatabasesJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(BackupAndSendDatabasesJob),
-                cronExpression: "0 0 0/23 * * ?"));
+
+
+            //services.AddTransient<EmailMinimumInventoryBackgroundJob>();
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(EmailMinimumInventoryBackgroundJob),
+            //    cronExpression: "0 0 0/23 * * ?"));
+
+            //services.AddTransient<ActivateInactiveAllegroOffersJob>(); //TODO to remove for sure
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(ActivateInactiveAllegroOffersJob),
+            //    cronExpression: "0 0/1 * * * ?"));
+
+            //services.AddTransient<BackupAndSendDatabasesJob>();
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(BackupAndSendDatabasesJob),
+            //    cronExpression: "0 0 0/23 * * ?"));
         }
 
         public void Configure(IApplicationBuilder app,
@@ -145,7 +157,13 @@ namespace react_app.Configuration
                 }
             });
 
-            //wmprojackDbContext.Database.EnsureCreated();
+            using (var serviceScope = app.ApplicationServices.CreateScope())
+            {
+                var services = serviceScope.ServiceProvider;
+                var wmprojackDbContext = services.GetRequiredService<WmprojackDbContext>();
+
+                wmprojackDbContext.Database.EnsureCreated();
+            }
         }
     }
 }

@@ -36,6 +36,8 @@ namespace react_app.BackgroundTasks
                 var job = CreateJob(jobSchedule);
                 var trigger = CreateTrigger(jobSchedule);
 
+                
+
                 await Scheduler.ScheduleJob(job, trigger, cancellationToken);
             }
 
@@ -50,15 +52,31 @@ namespace react_app.BackgroundTasks
         private static IJobDetail CreateJob(JobSchedule schedule)
         {
             var jobType = schedule.JobType;
+            var immediateSuffix = string.IsNullOrWhiteSpace(schedule.CronExpression) ? ".immediate" : "";
+
             return JobBuilder
                 .Create(jobType)
-                .WithIdentity(jobType.FullName)
+                .WithIdentity($"{jobType.FullName}{immediateSuffix}")
                 .WithDescription(jobType.Name)
                 .Build();
         }
 
         private static ITrigger CreateTrigger(JobSchedule schedule)
         {
+            if(string.IsNullOrWhiteSpace(schedule.CronExpression))
+            {
+                var immediateSuffix = string.IsNullOrWhiteSpace(schedule.CronExpression) ? ".immediate" : "";
+
+                return TriggerBuilder
+                    .Create()
+                    .WithIdentity($"{schedule.JobType.FullName}.trigger{immediateSuffix}")
+                    .StartNow()
+                    .WithSimpleSchedule(x => x
+                        .WithRepeatCount(0)
+                    )
+                    .Build();
+            }
+
             return TriggerBuilder
                 .Create()
                 .WithIdentity($"{schedule.JobType.FullName}.trigger")
@@ -90,6 +108,11 @@ namespace react_app.BackgroundTasks
         {
             JobType = jobType;
             CronExpression = cronExpression;
+        }
+
+        public JobSchedule(Type jobType)
+        {
+            JobType = jobType;
         }
 
         public Type JobType { get; }

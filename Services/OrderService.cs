@@ -51,12 +51,17 @@ namespace react_app.Services
                 return 0;
             }
 
+            //TODO to comment back
+            return 0;
+
+
             var addedOrders = AddOrdersToDbs(ordersToSync, towary).ToList();
 
             if(addedOrders.Any())
             {
-                wmprojackDbContext.SaveChanges();
-                lomagDbContext.SaveChanges();
+                //TODO uncomment when sure about the logic !
+                //wmprojackDbContext.SaveChanges();
+                //lomagDbContext.SaveChanges();
             }
 
             return addedOrders.Count();
