@@ -37,7 +37,7 @@ namespace react_app.Controllers
         {
             var client = new RestClient("https://allegro.pl");
 
-            var request = new RestRequest($"/auth/oauth/token", Method.POST);
+            var request = new RestRequest($"/auth/oauth/token", Method.Post);
             request.AddHeader("Authorization", $"Basic {allegroSettings.Value.Base64Bearer}");
             request.AddParameter("grant_type", "authorization_code");
             request.AddParameter("code", code);

@@ -38,7 +38,7 @@ namespace react_app.BackgroundTasks
 
             var client = new RestClient("https://allegro.pl");
 
-            var request = new RestRequest($"/auth/oauth/token", Method.POST);
+            var request = new RestRequest($"/auth/oauth/token", Method.Post);
             request.AddHeader("Authorization", $"Basic {allegroSettings.Value.Base64Bearer}");
             request.AddParameter("grant_type", "refresh_token");
             request.AddParameter("refresh_token", refreshToken);

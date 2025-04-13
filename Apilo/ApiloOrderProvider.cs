@@ -1,82 +1,96 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using react_app.BackgroundTasks;
 using react_app.Configuration;
 using react_app.Services;
+using react_app.Wmprojack.Entities;
 using RestSharp;
+using RestSharp.Authenticators;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace react_app.Apilo
 {
     public class ApiloOrderProvider : IOrderProvider
     {
+        private readonly ILogger<ApiloOrderProvider> logger;
         private readonly IOptions<ApiloSettings> apiloSettings;
         private readonly IOptions<Settings> settings;
+        private readonly IWebHostEnvironment env;
 
         public OrderProviderType Type => OrderProviderType.Apilo;
 
-        public ApiloOrderProvider(IOptions<ApiloSettings> apaczkaSettings,
-            IOptions<Settings> settings)
+        public ApiloOrderProvider(
+            ILogger<ApiloOrderProvider> logger,
+            IOptions<ApiloSettings> apiloSettings,
+             IOptions<Settings> settings,
+             IWebHostEnvironment env) 
         {
-            this.apiloSettings = apaczkaSettings;
+            this.logger = logger;
+            this.apiloSettings = apiloSettings;
             this.settings = settings;
+            this.env = env;
         }
 
-        public IEnumerable<OrderDto> GetOrders()
+        public async Task<IEnumerable<OrderDto>> GetOrders()
         {
-            yield break;
-            //var expires = string.Join("", DateTime.Now.AddMinutes(10).ToString("o").Take(19));
-
-            //var expiresDate = new DateTimeOffset(DateTime.Parse(expires)).ToUnixTimeSeconds(); ;
-
-            //var data = new
-            //{
-            //    page = 1,
-            //    limit = 25
-            //};
-            //var dataJson = JsonConvert.SerializeObject(data);
-
-            //var route = "orders/";
-
-            //var message = $"{apiloSettings.Value.AppId}:{route}:{dataJson}:{expiresDate}";
-            //var signature = HashHmac(message, apiloSettings.Value.SecretId);
-
-            //var client = new RestClient("https://www.apaczka.pl");
-            //var request = new RestRequest($"api/v2/{route}", Method.POST);
-
-            //request.AddParameter("app_id", apiloSettings.Value.AppId);
-            //request.AddParameter("request", dataJson);
-            //request.AddParameter("expires", expiresDate);
-            //request.AddParameter("signature", signature);
-
-            //var response = client.Execute<ApaczkaOrdersResponse>(request).Data;
-
-            //var orders = response.Response.Orders.Where(o => o.Created > settings.Value.StartOrdersSyncFrom);
-
-            //return orders
-            //    .Select(o => new OrderDto
-            //    {
-            //        ProviderOrderId = o.Id,
-            //        ProviderType = OrderProviderType.Apaczka,
-            //        Codes = o.Comment,
-            //        Name = o.Content,
-            //        //Date = o.Created,
-            //        Quantity = 1
-            //    });
-        }
-
-        private static string HashHmac(string message, string secret)
-        {
-            Encoding encoding = Encoding.UTF8;
-            using (HMACSHA256 hmac = new HMACSHA256(encoding.GetBytes(secret)))
+            var tokenFilePath = Path.Combine(env.ContentRootPath, "token");
+            if (!File.Exists(tokenFilePath))
             {
-                var msg = encoding.GetBytes(message);
-                var hash = hmac.ComputeHash(msg);
-                return BitConverter.ToString(hash).ToLower().Replace("-", string.Empty);
+                Console.WriteLine("Brak tokenu, nie moge pobrac zamowien z Apilo");
+                return Enumerable.Empty<OrderDto>();
             }
+
+            var accessToken = File.ReadAllText(tokenFilePath);
+            var client = new RestClient(apiloSettings.Value.Url);
+
+            var request = new RestRequest($"/rest/api/orders/", Method.Get);
+
+            request.AddHeader("Authorization", $"Bearer {accessToken}");
+            request.AddHeader("Content-Type", "application/json");
+            request.AddHeader("Accept", "application/json");
+            request.AddQueryParameter("orderedAfter", settings.Value.StartOrdersSyncFrom.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+            //request.AddQueryParameter("orderStatus", "4"); //jaki to Wyslane && Odbior osobisty bo to sa w Apilo - Zrealizowane
+
+            var response = await client.ExecuteAsync<ApiloOrdersResponse>(request);
+
+            if (response.IsSuccessful && response.Data != null && response.Data.Orders != null)
+            {
+                var data = response.Data.Orders;
+
+
+                foreach (var apiloOrder in response.Data.Orders)
+                {
+                    var orderDetailRequest = new RestRequest($"/rest/api/orders/{apiloOrder.Id}/", Method.Get);
+                    orderDetailRequest.AddHeader("Authorization", $"Bearer {accessToken}");
+                    orderDetailRequest.AddHeader("Content-Type", "application/json");
+                    orderDetailRequest.AddHeader("Accept", "application/json");
+
+                    var orderDetailResponse = await client.ExecuteAsync<ApiloOrderDetailResponse>(orderDetailRequest);
+
+                    if (orderDetailResponse.IsSuccessful && orderDetailResponse.Data?.OrderNotes?.FirstOrDefault() != null)
+                    {
+                        if(orderDetailResponse.Data.OrderNotes.Any())
+                        {
+                            var comment = orderDetailResponse.Data.OrderNotes.First().Comment;
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                logger.LogError($"Błąd podczas pobierania zamówień z Apilo: {response.ErrorMessage}, Status Code: {response.StatusCode}, Content: {response.Content}");
+            }
+
+            return Enumerable.Empty<OrderDto>();
         }
 
         public string GenerateUrl(string orderId)

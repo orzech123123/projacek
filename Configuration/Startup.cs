@@ -80,17 +80,19 @@ namespace react_app.Configuration
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddHostedService<QuartzHostedService>();
 
-            //services.AddTransient<OrdersSyncBackgroundJob>();
+            services.AddTransient<OrdersSyncBackgroundJob>();
             //services.AddSingleton(new JobSchedule(
             //    jobType: typeof(OrdersSyncBackgroundJob),
             //    cronExpression: "0 0/1 * * * ?"));
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(OrdersSyncBackgroundJob)));
 
             services.AddTransient<RefreshApiloTokenBackgroundJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(RefreshApiloTokenBackgroundJob),
-                cronExpression: "0 0/1 * * * ?"));
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(RefreshApiloTokenBackgroundJob)));
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(RefreshApiloTokenBackgroundJob),
+            //    cronExpression: "0 0/15 * * * ?"));
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(RefreshApiloTokenBackgroundJob)));
 
             services.AddTransient<TruncateLogsBackgroundJob>();
             services.AddSingleton(new JobSchedule(

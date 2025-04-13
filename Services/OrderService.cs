@@ -41,7 +41,14 @@ namespace react_app.Services
         public async Task<int> SyncOrdersAsync()
         {
             var towary = await lomagService.GetTowary();
-            var recentApiOrders = orderProviders.SelectMany(p => p.GetOrders()).ToList();
+
+            var allOrders = new List<OrderDto>();
+            foreach (var provider in orderProviders)
+            {
+                var ordersFromProvider = await provider.GetOrders();
+                allOrders.AddRange(ordersFromProvider);
+            }
+            var recentApiOrders = allOrders.ToList();
 
             var ordersToSync = GetOrdersToSync(recentApiOrders, towary);
             logger.LogInformation($"Liczba wydań towarów do synchronizacji: {ordersToSync.Count()}");

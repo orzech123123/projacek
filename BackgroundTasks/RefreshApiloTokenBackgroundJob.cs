@@ -41,7 +41,7 @@ namespace react_app.BackgroundTasks
 
             var client = new RestClient(_apiloSettings.Value.Url);
 
-            var request = new RestRequest($"/rest/auth/token/", Method.POST);
+            var request = new RestRequest($"/rest/auth/token/", Method.Post);
 
             request.AddHeader("Authorization", $"Basic {_apiloSettings.Value.Base64Bearer}");
             request.AddHeader("Content-Type", "application/json");
@@ -61,8 +61,8 @@ namespace react_app.BackgroundTasks
             {
                 if (response.Data.IsValid)
                 {
-                    var accessToken = response.Data.AccessToken;
-                    var refreshToken = response.Data.RefreshToken;
+                    var accessToken = response.Data.AccessToken.Trim();
+                    var refreshToken = response.Data.RefreshToken.Trim();
 
                     File.WriteAllText(Path.Combine(env.ContentRootPath, "token"), accessToken);
                     File.WriteAllText(Path.Combine(env.ContentRootPath, "refresh-token"), refreshToken);

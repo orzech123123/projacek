@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace react_app.Services
 {
@@ -6,7 +7,7 @@ namespace react_app.Services
     {
         string GenerateUrl(string orderId);
         OrderProviderType Type { get; }
-        IEnumerable<OrderDto> GetOrders();
+        Task<IEnumerable<OrderDto>> GetOrders();
     }
 
     public enum OrderProviderType

@@ -26,7 +26,7 @@ namespace react_app.Allegro
 
             var client = new RestClient("https://api.allegro.pl");
 
-            var request = new RestRequest($"/order/checkout-forms", Method.GET);
+            var request = new RestRequest($"/order/checkout-forms", Method.Get);
             request.AddHeader("Authorization", $"Bearer {token}");
             request.AddHeader("Accept", $"application/vnd.allegro.public.v1+json");
             //request.AddParameter("limit", "25");
