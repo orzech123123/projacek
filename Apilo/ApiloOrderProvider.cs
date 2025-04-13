@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -14,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace react_app.Apilo
@@ -59,13 +61,12 @@ namespace react_app.Apilo
             request.AddQueryParameter("orderedAfter", settings.Value.StartOrdersSyncFrom.ToString("yyyy-MM-ddTHH:mm:sszzz"));
             //request.AddQueryParameter("orderStatus", "4"); //jaki to Wyslane && Odbior osobisty bo to sa w Apilo - Zrealizowane
 
+            var result = new List<OrderDto>();
+
             var response = await client.ExecuteAsync<ApiloOrdersResponse>(request);
 
             if (response.IsSuccessful && response.Data != null && response.Data.Orders != null)
             {
-                var data = response.Data.Orders;
-
-
                 foreach (var apiloOrder in response.Data.Orders)
                 {
                     var orderDetailRequest = new RestRequest($"/rest/api/orders/{apiloOrder.Id}/", Method.Get);
@@ -77,9 +78,21 @@ namespace react_app.Apilo
 
                     if (orderDetailResponse.IsSuccessful && orderDetailResponse.Data?.OrderNotes?.FirstOrDefault() != null)
                     {
-                        if(orderDetailResponse.Data.OrderNotes.Any())
+                        var comment = orderDetailResponse.Data.OrderNotes.FirstOrDefault()?.Comment;
+
+                        if (!string.IsNullOrEmpty(comment))
                         {
-                            var comment = orderDetailResponse.Data.OrderNotes.First().Comment;
+                            var codes = GetCommentCodes(comment);
+
+                            result.Add(new OrderDto
+                            {
+                                Codes = string.Join(" ", codes).Trim(),
+                                ProviderOrderId = apiloOrder.Id,
+                                ProviderType = OrderProviderType.Apilo,
+                                Quantity = 1
+                            });
+
+                            logger.LogInformation(comment);
                         }
                     }
                 }
@@ -90,7 +103,27 @@ namespace react_app.Apilo
                 logger.LogError($"Błąd podczas pobierania zamówień z Apilo: {response.ErrorMessage}, Status Code: {response.StatusCode}, Content: {response.Content}");
             }
 
-            return Enumerable.Empty<OrderDto>();
+            return result;
+        }
+
+        private List<string> GetCommentCodes(string comment)
+        {
+            if (string.IsNullOrEmpty(comment))
+            {
+                return new List<string>();
+            }
+
+            var contents = new List<string>();
+            var matches = Regex.Matches(comment, @"<([a-zA-Z0-9]+)>(.*?)</\1>", RegexOptions.Singleline);
+
+            foreach (Match match in matches)
+            {
+                if (match.Groups.Count == 3) 
+                {
+                    contents.Add(match.Groups[2].Value); 
+                }
+            }
+            return contents;
         }
 
         public string GenerateUrl(string orderId)

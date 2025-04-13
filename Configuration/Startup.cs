@@ -88,11 +88,11 @@ namespace react_app.Configuration
                 jobType: typeof(OrdersSyncBackgroundJob)));
 
             services.AddTransient<RefreshApiloTokenBackgroundJob>();
-            //services.AddSingleton(new JobSchedule(
-            //    jobType: typeof(RefreshApiloTokenBackgroundJob),
-            //    cronExpression: "0 0/15 * * * ?"));
-            //services.AddSingleton(new JobSchedule(
-            //    jobType: typeof(RefreshApiloTokenBackgroundJob)));
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(RefreshApiloTokenBackgroundJob),
+                cronExpression: "0 0/15 * * * ?"));
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(RefreshApiloTokenBackgroundJob)));
 
             services.AddTransient<TruncateLogsBackgroundJob>();
             services.AddSingleton(new JobSchedule(

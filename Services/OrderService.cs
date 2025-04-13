@@ -59,7 +59,7 @@ namespace react_app.Services
             }
 
             //TODO to comment back
-            return 0;
+            //return 0;
 
 
             var addedOrders = AddOrdersToDbs(ordersToSync, towary).ToList();
@@ -89,7 +89,7 @@ namespace react_app.Services
 
             var apiOrdersGroups = recentApiOrders
                 .Where(o => o.IsValid)
-                .GroupBy(o => new { o.ProviderOrderId, o.ProviderType, o.Name });
+                .GroupBy(o => new { o.ProviderOrderId, o.ProviderType/*, o.Name*/ });
 
             foreach (var apiOrderGroup in apiOrdersGroups)
             {
@@ -112,7 +112,8 @@ namespace react_app.Services
 
                 foreach(var missingCode in missingCodes)
                 {
-                    var name = $"{towary.Single(t => t.KodKreskowy == missingCode).Nazwa} - {apiOrderGroup.Key.Name}";
+                    //var name = $"{towary.Single(t => t.KodKreskowy == missingCode).Nazwa} - {apiOrderGroup.Key.Name}";
+                    var name = $"{towary.Single(t => t.KodKreskowy == missingCode).Nazwa}"; //TODO sequence contains more than one element !
 
                     ordersToSync.Add(new Order
                     {
@@ -139,7 +140,7 @@ namespace react_app.Services
 
             var allegroKontrahent = lomagService.GetAllegroKontrahent();
             var wmprojackKontrahent = lomagService.GetWmProjackKontrahent();
-            var wmprojackMagazyn = lomagService.GetProjackMagazyn();
+            var wmprojackMagazyn = lomagService.GetMagazyn2022();
             var wydanieRodzajRuchu = lomagService.GetWydanieZMagazynuRodzajRuchu();
             var user = lomagService.GetUzytkownik();
 

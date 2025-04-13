@@ -19,12 +19,14 @@ namespace react_app.Services
 
         public async Task<IList<Towar>> GetTowary()
         {
-            return await lomagDbContext.Towary.ToListAsync();
+            return await lomagDbContext.Towary
+                .Where(t => t.IdMagazynu == GetMagazyn2022().IdMagazynu)
+                .ToListAsync();
         }
 
         public Kontrahent GetAllegroKontrahent() => lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Allegro");
         public Kontrahent GetWmProjackKontrahent() => lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Weronika Matecka PROJACK");
-        public Magazyn GetProjackMagazyn() => lomagDbContext.Magazyny.Single(k => k.Nazwa == "PROJACK");
+        public Magazyn GetMagazyn2022() => lomagDbContext.Magazyny.Single(k => k.Nazwa == "Magazyn 2022");
         public RodzajRuchuMagazynowego GetWydanieZMagazynuRodzajRuchu() =>  lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
         public Uzytkownik GetUzytkownik() => lomagDbContext.Uzytkownicy.First();
 
