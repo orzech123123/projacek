@@ -41,6 +41,9 @@ namespace react_app.Apilo
         [JsonProperty("id")]
         public int Id { get; set; }
 
+        [JsonProperty("type")]
+        public int Type { get; set; }
+
         [JsonProperty("comment")]
         public string Comment { get; set; }
     }

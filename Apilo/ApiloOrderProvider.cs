@@ -78,21 +78,29 @@ namespace react_app.Apilo
 
                     if (orderDetailResponse.IsSuccessful && orderDetailResponse.Data?.OrderNotes?.FirstOrDefault() != null)
                     {
-                        var comment = orderDetailResponse.Data.OrderNotes.FirstOrDefault()?.Comment;
+                        var wiadomoscWewnetrznaType = 2;
 
-                        if (!string.IsNullOrEmpty(comment))
+                        var comments = orderDetailResponse.Data.OrderNotes
+                            .Where(x => x.Type == wiadomoscWewnetrznaType)
+                            .Select(x => x.Comment)
+                            .ToList();
+
+                        foreach(var comment in comments)
                         {
-                            var codes = GetCommentCodes(comment);
-
-                            result.Add(new OrderDto
+                            if (!string.IsNullOrEmpty(comment))
                             {
-                                Codes = string.Join(" ", codes).Trim(),
-                                ProviderOrderId = apiloOrder.Id,
-                                ProviderType = OrderProviderType.Apilo,
-                                Quantity = 1
-                            });
+                                var codes = GetCommentCodes(comment);
 
-                            logger.LogInformation(comment);
+                                result.Add(new OrderDto
+                                {
+                                    Codes = string.Join(" ", codes).Trim(),
+                                    ProviderOrderId = apiloOrder.Id,
+                                    ProviderType = OrderProviderType.Apilo,
+                                    Quantity = 1
+                                });
+
+                                //logger.LogInformation(comment);
+                            }
                         }
                     }
                 }
@@ -128,7 +136,7 @@ namespace react_app.Apilo
 
         public string GenerateUrl(string orderId)
         {
-            return $"https://panel.apaczka.pl/zlecenia/{orderId}";
+            return $"https://wmprojack.apilo.com/order/order/detail/{orderId}";
         }
     }
 }

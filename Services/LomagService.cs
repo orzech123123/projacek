@@ -24,7 +24,7 @@ namespace react_app.Services
                 .ToListAsync();
         }
 
-        public Kontrahent GetAllegroKontrahent() => lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Allegro");
+        public Kontrahent GetApiloKontrahent() => lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Apilo");
         public Kontrahent GetWmProjackKontrahent() => lomagDbContext.Kontrahenci.Single(k => k.Nazwa == "Weronika Matecka PROJACK");
         public Magazyn GetMagazyn2022() => lomagDbContext.Magazyny.Single(k => k.Nazwa == "Magazyn 2022");
         public RodzajRuchuMagazynowego GetWydanieZMagazynuRodzajRuchu() =>  lomagDbContext.RodzajeRuchuMagazynowego.Single(k => k.Nazwa == "Wydanie z magazynu");
@@ -59,26 +59,38 @@ namespace react_app.Services
                 .ToDictionary(s => s.Key, s => s.Stan);
         }
 
-        public IEnumerable<string> ExtractCodes(string codes, IEnumerable<string> lomagKodyKreskowe, int quantity)
+        public IEnumerable<string> ExtractCodes(string codes, IEnumerable<string> lomagKodyKreskowe, int quantity, Action<string> onInvalidCodeAction)
         {
             if(string.IsNullOrWhiteSpace(codes) || quantity < 1)
             {
                 return Enumerable.Empty<string>();
             }
 
-            var lomagCodes = codes
+            var allCodes = codes
                 .Split(new[] { ' ' })
+                .ToList();
+
+            var lomagCodes = allCodes
                 .Where(strPart => lomagKodyKreskowe.Contains(strPart))
                 .ToList();
 
-            var allCodes = new List<string>();
+            var invalidCodes = allCodes
+                .Where(strPart => !lomagKodyKreskowe.Contains(strPart))
+                .ToList();
+
+            foreach(var invalidCode in invalidCodes)
+            {
+                onInvalidCodeAction(invalidCode);
+            }
+
+            var resultCodes = new List<string>();
 
             for (var i = 0; i < quantity; i++)
             {
-                allCodes.AddRange(lomagCodes);
+                resultCodes.AddRange(lomagCodes);
             }
 
-            return allCodes;
+            return resultCodes;
         }
     }
 }

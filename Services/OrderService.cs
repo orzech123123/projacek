@@ -48,6 +48,10 @@ namespace react_app.Services
                 var ordersFromProvider = await provider.GetOrders();
                 allOrders.AddRange(ordersFromProvider);
             }
+
+            /////////////// testy jedno zamowienie //////////////////////////////////////
+            allOrders = allOrders.Where(o => o.ProviderOrderId == "CG250400304").ToList();
+
             var recentApiOrders = allOrders.ToList();
 
             var ordersToSync = GetOrdersToSync(recentApiOrders, towary);
@@ -67,8 +71,8 @@ namespace react_app.Services
             if(addedOrders.Any())
             {
                 //TODO uncomment when sure about the logic !
-                //wmprojackDbContext.SaveChanges();
-                //lomagDbContext.SaveChanges();
+                wmprojackDbContext.SaveChanges();
+                lomagDbContext.SaveChanges();
             }
 
             return addedOrders.Count();
@@ -94,7 +98,15 @@ namespace react_app.Services
             foreach (var apiOrderGroup in apiOrdersGroups)
             {
                 var missingCodes = apiOrderGroup
-                    .SelectMany(g => lomagService.ExtractCodes(g.Codes, lomagKodyKreskowe, g.Quantity))
+                    .SelectMany(g =>
+                    {
+                        var lomagMatchedCodes = lomagService.ExtractCodes(g.Codes, lomagKodyKreskowe, g.Quantity, (string invalidCode) =>
+                        {
+                            LogNiepoprawnyKod(invalidCode, apiOrderGroup.Key.ProviderOrderId, apiOrderGroup.Key.ProviderType);
+                        });
+
+                        return lomagMatchedCodes;
+                    })
                     .ToList();
 
                 var alreadyProcessedOrdersGroup = alreadyProcessedOrders
@@ -113,7 +125,10 @@ namespace react_app.Services
                 foreach(var missingCode in missingCodes)
                 {
                     //var name = $"{towary.Single(t => t.KodKreskowy == missingCode).Nazwa} - {apiOrderGroup.Key.Name}";
-                    var name = $"{towary.Single(t => t.KodKreskowy == missingCode).Nazwa}"; //TODO sequence contains more than one element !
+
+                    var towar = towary.Single(t => t.KodKreskowy == missingCode);
+
+                    var name = $"{towar.Nazwa}"; 
 
                     ordersToSync.Add(new Order
                     {
@@ -138,7 +153,7 @@ namespace react_app.Services
                 yield break;
             }
 
-            var allegroKontrahent = lomagService.GetAllegroKontrahent();
+            var apiloKontrahent = lomagService.GetApiloKontrahent();
             var wmprojackKontrahent = lomagService.GetWmProjackKontrahent();
             var wmprojackMagazyn = lomagService.GetMagazyn2022();
             var wydanieRodzajRuchu = lomagService.GetWydanieZMagazynuRodzajRuchu();
@@ -150,7 +165,7 @@ namespace react_app.Services
 
                 var ruchMagazynowy = new RuchMagazynowy
                 {
-                    Kontrahent = allegroKontrahent,
+                    Kontrahent = apiloKontrahent,
                     Company = wmprojackKontrahent,
                     Data = date,
                     Utworzono = date,
@@ -233,6 +248,13 @@ namespace react_app.Services
                 $" [Zamówienie: {GenerateUrl(order)}] [STOP: {settings.Value.StopSyncOrdersUrl}?id={order.ProviderOrderId}&code={order.Code}&type={order.ProviderType.ToString()}]");
         }
 
+        private void LogNiepoprawnyKod(string code, string orderId, OrderProviderType providerType)
+        {
+            logger.LogWarning($"Błędny kod towaru {code}." +
+                $" [Zamówienie: {GenerateUrl(orderId, providerType)}]");
+        }
+
         private string GenerateUrl(Order order) => orderProviders.Single(p => p.Type == order.ProviderType).GenerateUrl(order.ProviderOrderId);
+        private string GenerateUrl(string orderId, OrderProviderType providerType) => orderProviders.Single(p => p.Type == providerType).GenerateUrl(orderId);
     }
 }
