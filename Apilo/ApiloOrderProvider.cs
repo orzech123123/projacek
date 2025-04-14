@@ -22,6 +22,8 @@ namespace react_app.Apilo
 {
     public class ApiloOrderProvider : IOrderProvider
     {
+        private int fetchHowFarInPastInDays = 14;
+
         private readonly ILogger<ApiloOrderProvider> logger;
         private readonly IOptions<ApiloSettings> apiloSettings;
         private readonly IOptions<Settings> settings;
@@ -55,11 +57,13 @@ namespace react_app.Apilo
 
             var request = new RestRequest($"/rest/api/orders/", Method.Get);
 
+            var minimumFetchDate = DateTime.Now.AddDays(-fetchHowFarInPastInDays).Date;
+            var orderedAfter = new[] { settings.Value.StartOrdersSyncFrom, minimumFetchDate }.Max();
+
             request.AddHeader("Authorization", $"Bearer {accessToken}");
             request.AddHeader("Content-Type", "application/json");
             request.AddHeader("Accept", "application/json");
-            request.AddQueryParameter("orderedAfter", settings.Value.StartOrdersSyncFrom.ToString("yyyy-MM-ddTHH:mm:sszzz"));
-            //request.AddQueryParameter("orderStatus", "4"); //jaki to Wyslane && Odbior osobisty bo to sa w Apilo - Zrealizowane
+            request.AddQueryParameter("orderedAfter", orderedAfter.ToString("yyyy-MM-ddTHH:mm:sszzz"));
 
             var result = new List<OrderDto>();
 

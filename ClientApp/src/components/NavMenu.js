@@ -42,9 +42,6 @@ export class NavMenu extends Component {
                     {<NavItem>
                         <NavLink tag={Link} className="text-dark" to="/logs-list">Logi</NavLink>
                     </NavItem>}
-                <NavItem>
-                    <a href={"https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=" + this.state.allegroSettings.clientId + "&redirect_uri=" + this.state.allegroSettings.returnUrl } className="text-dark nav-link">Zaloguj do Allegro</a>
-                </NavItem>
               </ul>
             </Collapse>
           </Container>

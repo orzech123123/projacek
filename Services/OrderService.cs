@@ -49,8 +49,8 @@ namespace react_app.Services
                 allOrders.AddRange(ordersFromProvider);
             }
 
-            /////////////// testy jedno zamowienie //////////////////////////////////////
-            allOrders = allOrders.Where(o => o.ProviderOrderId == "CG250400304").ToList();
+            /////////////// testy jedno zamowienie /////////////////////////////////////////
+            //allOrders = allOrders.Where(o => o.ProviderOrderId == "CG250400304").ToList();
 
             var recentApiOrders = allOrders.ToList();
 
@@ -62,17 +62,13 @@ namespace react_app.Services
                 return 0;
             }
 
-            //TODO to comment back
-            //return 0;
-
-
             var addedOrders = AddOrdersToDbs(ordersToSync, towary).ToList();
 
             if(addedOrders.Any())
             {
                 //TODO uncomment when sure about the logic !
-                wmprojackDbContext.SaveChanges();
-                lomagDbContext.SaveChanges();
+                //wmprojackDbContext.SaveChanges();
+                //lomagDbContext.SaveChanges();
             }
 
             return addedOrders.Count();

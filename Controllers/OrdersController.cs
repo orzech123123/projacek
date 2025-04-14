@@ -20,6 +20,7 @@ namespace react_app.Controllers
         }
 
         [HttpPost]
+        [Route(nameof(StopSync))]
         public string StopSync(string id, string code, OrderProviderType type)
         {
             var isAlreadyIgnored = wmprojackDbContext.IgnoredOrder

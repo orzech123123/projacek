@@ -57,6 +57,10 @@ function OrdersTable() {
                     if (props.row.original.providerType === "Apaczka") {
                         return <a target="_blank" href={"https://panel.apaczka.pl/zlecenia/" + props.value}>Zamówienie</a>
                     }
+                    
+                    if (props.row.original.providerType === "Apilo") {
+                        return <a target="_blank" href={"https://wmprojack.apilo.com/order/order/detail/" + props.value}>Zamówienie</a>
+                    }
 
                     return (null);
                 }
