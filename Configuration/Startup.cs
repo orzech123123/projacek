@@ -94,10 +94,10 @@ namespace react_app.Configuration
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(RefreshApiloTokenBackgroundJob)));
 
-            services.AddTransient<TruncateLogsBackgroundJob>();
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(TruncateLogsBackgroundJob),
-                cronExpression: "0 0 0/23 * * ?"));
+            //services.AddTransient<TruncateLogsBackgroundJob>();
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(TruncateLogsBackgroundJob),
+            //    cronExpression: "0 0 0/23 * * ?"));
 
 
 
