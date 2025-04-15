@@ -81,16 +81,16 @@ namespace react_app.Configuration
             services.AddHostedService<QuartzHostedService>();
 
             services.AddTransient<OrdersSyncBackgroundJob>();
-            //services.AddSingleton(new JobSchedule(
-            //    jobType: typeof(OrdersSyncBackgroundJob),
-            //    cronExpression: "0 0/1 * * * ?"));
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(OrdersSyncBackgroundJob),
+                cronExpression: "0 0/15 * * * ?"));
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(OrdersSyncBackgroundJob)));
 
             services.AddTransient<RefreshApiloTokenBackgroundJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(RefreshApiloTokenBackgroundJob),
-                cronExpression: "0 0/15 * * * ?"));
+                cronExpression: "0 0/17 * * * ?"));
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(RefreshApiloTokenBackgroundJob)));
 
