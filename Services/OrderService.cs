@@ -66,7 +66,7 @@ namespace react_app.Services
 
             if(addedOrders.Any())
             {
-                //TODO uncomment when sure about the logic !
+                //TODO uncomment when sure about the logic !!!
                 //wmprojackDbContext.SaveChanges();
                 //lomagDbContext.SaveChanges();
             }
